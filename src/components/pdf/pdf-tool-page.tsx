@@ -23,7 +23,7 @@ export function PdfToolPage({ tool }: { tool: PdfToolDef }) {
   const path = `/${tool.routePrefix}/${tool.slug}`;
   const crumbs: Crumb[] = [
     { name: "Home", path: "/" },
-    { name: "PDF Tools", path: "/tools" },
+    { name: "Tools", path: "/tools?category=pdf" },
     { name: tool.name, path },
   ];
 

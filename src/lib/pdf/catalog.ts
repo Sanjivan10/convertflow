@@ -193,7 +193,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     slug: "pdf-to-jpg",
     routePrefix: "tools",
     op: "pdf-to-jpg",
-    category: "image",
+    category: "convert",
     name: "PDF to JPG",
     h1: "Convert PDF to JPG",
     description:
@@ -209,7 +209,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     slug: "jpg-to-pdf",
     routePrefix: "tools",
     op: "jpg-to-pdf",
-    category: "image",
+    category: "convert",
     name: "JPG to PDF",
     h1: "Convert JPG to PDF",
     description:
@@ -224,7 +224,7 @@ export const PDF_TOOLS: PdfToolDef[] = [
     slug: "scan-to-pdf",
     routePrefix: "tools",
     op: "scan-to-pdf",
-    category: "image",
+    category: "convert",
     name: "Scan to PDF",
     h1: "Scan documents to PDF",
     description:
@@ -601,7 +601,7 @@ export function pdfToolsByPrefix(prefix: "tools" | "convert"): PdfToolDef[] {
 
 export const PDF_TOOL_CATEGORIES = [
   { id: "organize", label: "Organize" },
-  { id: "image", label: "Convert & scan" },
+  { id: "convert", label: "Convert & scan" },
   { id: "edit", label: "Edit & sign" },
   { id: "security", label: "Security" },
   { id: "optimize", label: "Optimize & AI" },

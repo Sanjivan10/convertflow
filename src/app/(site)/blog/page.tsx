@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPublishedPosts } from "@/lib/blog";
-import { buildMetadata } from "@/lib/seo";
+import {
+  breadcrumbSchema,
+  buildMetadata,
+  jsonLdScript,
+  type Crumb,
+} from "@/lib/seo";
 import { formatDate } from "@/lib/utils";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AdZone } from "@/components/ad-zone";
+
+const CRUMBS: Crumb[] = [
+  { name: "Home", path: "/" },
+  { name: "Blog", path: "/blog" },
+];
 
 export const revalidate = 300;
 
@@ -19,7 +30,12 @@ export default async function BlogIndex() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-3xl font-extrabold tracking-tight">Blog</h1>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(breadcrumbSchema(CRUMBS))}
+      />
+      <Breadcrumbs items={CRUMBS} />
+      <h1 className="mt-4 text-3xl font-extrabold tracking-tight">Blog</h1>
       <p className="mt-2 text-slate-500">
         File-format guides, compression tips, and product updates.
       </p>

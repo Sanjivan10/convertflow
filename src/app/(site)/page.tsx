@@ -64,7 +64,7 @@ export default async function HomePage() {
         <div className="flex items-end justify-between">
           <h2 className="text-2xl font-bold">PDF Tools</h2>
           <Link
-            href="/tools?category=organize"
+            href="/tools?category=pdf"
             className="inline-flex items-center gap-1 text-sm font-medium text-sky-600 hover:underline"
           >
             Browse all PDF tools <ArrowRight className="size-4" />

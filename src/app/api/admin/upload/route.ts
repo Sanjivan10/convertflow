@@ -3,12 +3,12 @@ import { join } from "node:path";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 
+// SVG is intentionally excluded — it can carry scripts (stored-XSS risk).
 const ALLOWED = new Set([
   "image/png",
   "image/jpeg",
   "image/webp",
   "image/gif",
-  "image/svg+xml",
 ]);
 const MAX_BYTES = 5 * 1024 * 1024;
 const EXT: Record<string, string> = {
@@ -16,7 +16,6 @@ const EXT: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/webp": "webp",
   "image/gif": "gif",
-  "image/svg+xml": "svg",
 };
 
 export async function POST(request: Request) {
