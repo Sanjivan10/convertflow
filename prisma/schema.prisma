@@ -1,0 +1,156 @@
+// ConvertFlow database schema — PostgreSQL.
+//
+// Set DATABASE_URL to a hosted Postgres connection string (Vercel Postgres,
+// Neon, Supabase, …). `npm run build` runs `prisma db push` to sync tables.
+// (Enums are modelled as strings and list fields as JSON text, so the schema
+// also runs on SQLite unchanged if you ever need a zero-setup local database.)
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Role: "ADMIN" | "EDITOR" | "AUTHOR"
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         String   @default("AUTHOR")
+  /// Set true on first login to force a password change (invited users).
+  mustReset    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  posts        Post[]
+}
+
+/// status: "DRAFT" | "PUBLISHED"
+model Post {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  title           String
+  excerpt         String    @default("")
+  /// Tiptap-generated HTML.
+  contentHtml     String    @default("")
+  coverImage      String?
+  status          String    @default("DRAFT")
+  metaTitle       String?
+  metaDescription String?
+  /// JSON string: array of { question, answer } rendered as FAQPage schema.
+  faq             String    @default("[]")
+  /// JSON string: array of tag strings.
+  tags            String    @default("[]")
+  /// JSON string: array of SEO focus keywords.
+  keywords        String    @default("[]")
+  author          User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId        String?
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+/// engine: "IMAGE" | "PDF" | "CUSTOM"  ·  status: "DRAFT" | "PUBLISHED"
+model Tool {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  category        String   @default("image")
+  fromFormat      String
+  toFormat        String
+  description     String   @default("")
+  longDescription String   @default("")
+  /// Comma-separated accept list, e.g. "image/png,.png".
+  accept          String   @default("")
+  engine          String   @default("IMAGE")
+  /// For engine = CUSTOM: a client-side ES module body exporting `convert()`.
+  customScript    String   @default("")
+  status          String   @default("DRAFT")
+  metaTitle       String?
+  metaDescription String?
+  /// JSON string: array of SEO focus keywords.
+  keywords        String   @default("[]")
+  /// Optional hero / OpenGraph image URL.
+  ogImage         String?
+  /// JSON string: array of { question, answer }.
+  faq             String   @default("[]")
+  featured        Boolean  @default(false)
+  conversionCount Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status, category])
+}
+
+/// Singleton (id = "site") holding the visual footer builder configuration.
+model FooterConfig {
+  id        String   @id @default("site")
+  /// JSON: { columns: [{ title, links: [{ label, href }] }], tagline, bottomText }
+  data      String   @default("{}")
+  bgColor   String   @default("#f8fafc")
+  textColor String   @default("#64748b")
+  headingColor String @default("#334155")
+  linkColor String   @default("#0284c7")
+  columnsCount Int   @default(4)
+  align     String   @default("left")
+  updatedAt DateTime @updatedAt
+}
+
+/// A managed banner/ad slot placed at a named zone on the public site.
+model AdPlacement {
+  id          String   @id @default(cuid())
+  name        String
+  /// Zone key the public <AdZone> looks up, e.g. "home-top", "tool-sidebar".
+  zone        String
+  /// Reserved shape for zero-CLS: "leaderboard" | "rectangle" | "sidebar" | "mobile-banner"
+  format      String   @default("leaderboard")
+  enabled     Boolean  @default(true)
+  /// One of: image banner (imageUrl + targetUrl), raw HTML, or an AdSense slot id.
+  imageUrl    String?
+  targetUrl   String?
+  htmlSnippet String?
+  adsenseSlot String?
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([zone, enabled])
+}
+
+/// type: "PAGEVIEW" | "CONVERSION"
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  type      String
+  path      String
+  toolSlug  String?
+  referrer  String?
+  country   String?
+  /// JSON string of arbitrary event metadata.
+  meta      String   @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([createdAt])
+}
+
+model ConversionLog {
+  id         String   @id @default(cuid())
+  toolSlug   String
+  fromFormat String
+  toFormat   String
+  fileName   String?
+  fileSize   Int      @default(0)
+  durationMs Int      @default(0)
+  success    Boolean  @default(true)
+  error      String?
+  createdAt  DateTime @default(now())
+
+  @@index([toolSlug, createdAt])
+  @@index([createdAt])
+}
