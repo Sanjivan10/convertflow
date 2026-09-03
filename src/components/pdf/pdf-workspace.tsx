@@ -13,6 +13,7 @@ import { CompareWorkspace } from "./compare-workspace";
 import { HtmlWorkspace } from "./html-workspace";
 import { ScanWorkspace } from "./scan-workspace";
 import { OcrWorkspace } from "./ocr-workspace";
+import { ServerConvertWorkspace } from "./server-convert-workspace";
 import { UnavailableWorkspace } from "./unavailable-workspace";
 
 const SIMPLE_OPS = new Set<PdfOp>([
@@ -47,6 +48,11 @@ const ACTION_LABEL: Partial<Record<PdfOp, string>> = {
   protect: "Encrypt & download",
   "pdf-to-word": "Convert to Word",
   "pdf-to-excel": "Convert to Excel",
+  "word-to-pdf": "Convert to PDF",
+  "powerpoint-to-pdf": "Convert to PDF",
+  "excel-to-pdf": "Convert to PDF",
+  "pdf-to-powerpoint": "Convert to PowerPoint",
+  "pdf-to-pdfa": "Convert to PDF/A",
 };
 
 export function PdfWorkspace({
@@ -56,6 +62,7 @@ export function PdfWorkspace({
   accept,
   multiple,
   capability,
+  conversionConfigured = false,
 }: {
   slug: string;
   op: PdfOp;
@@ -63,7 +70,21 @@ export function PdfWorkspace({
   accept: string;
   multiple: boolean;
   capability: ToolCapability;
+  conversionConfigured?: boolean;
 }) {
+  if (capability === "server-api") {
+    return (
+      <ServerConvertWorkspace
+        slug={slug}
+        op={op}
+        name={name}
+        accept={accept}
+        actionLabel={ACTION_LABEL[op] ?? "Convert & download"}
+        configured={conversionConfigured}
+      />
+    );
+  }
+
   if (capability === "server") {
     return <UnavailableWorkspace name={name} />;
   }
@@ -94,7 +115,9 @@ export function PdfWorkspace({
     case "compare":
       return <CompareWorkspace />;
     case "html-to-pdf":
-      return <HtmlWorkspace slug={slug} />;
+      return (
+        <HtmlWorkspace slug={slug} conversionConfigured={conversionConfigured} />
+      );
     case "scan-to-pdf":
       return <ScanWorkspace slug={slug} />;
     case "ocr":

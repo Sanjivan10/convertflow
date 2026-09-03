@@ -4,7 +4,8 @@ import type { FaqItem } from "@/lib/seo";
 export type ToolCapability =
   | "client" // runs fully in the browser
   | "beta" // runs in the browser with documented limitations
-  | "server"; // needs a server engine / API key not configured in this build
+  | "server-api" // runs via /api/convert/document (needs CONVERSION_* env vars)
+  | "server"; // needs a separate service (e.g. translation API) not yet wired
 
 export type PdfOp =
   | "merge"
@@ -509,10 +510,10 @@ export const PDF_TOOLS: PdfToolDef[] = [
     description:
       "Turn PDF pages into editable .pptx slides.",
     longDescription:
-      "<p>Faithful PDF→PPTX conversion needs server-side layout analysis to rebuild slide shapes and text boxes. That engine is not enabled in this build.</p>",
+      "<p>Each PDF page is analysed and rebuilt into an editable <strong>.pptx</strong> slide (text boxes, images, and shapes where detectable). Conversion runs on a server-side engine — the file is processed and then discarded.</p>",
     accept: PDF_ACCEPT,
     multiple: false,
-    capability: "server",
+    capability: "server-api",
   }),
   tool({
     slug: "word-to-pdf",
@@ -523,11 +524,11 @@ export const PDF_TOOLS: PdfToolDef[] = [
     h1: "Convert Word to PDF",
     description: "Render .doc / .docx files to clean PDF.",
     longDescription:
-      "<p>Accurate Word→PDF rendering requires a server-side office engine (LibreOffice / Word) to lay out styles, fonts, and pagination. That engine is not enabled in this build.</p>",
+      "<p>Your <strong>.doc</strong> or <strong>.docx</strong> is rendered to PDF by a server-side office engine, preserving fonts, styles, tables, headers/footers, and page breaks. The upload is deleted right after the conversion.</p>",
     accept:
       ".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     multiple: false,
-    capability: "server",
+    capability: "server-api",
   }),
   tool({
     slug: "powerpoint-to-pdf",
@@ -538,11 +539,11 @@ export const PDF_TOOLS: PdfToolDef[] = [
     h1: "Convert PowerPoint to PDF",
     description: "Render .ppt / .pptx slide decks to PDF.",
     longDescription:
-      "<p>Slide rendering with correct themes, fonts, and animations-to-static requires a server-side office engine, which is not enabled in this build.</p>",
+      "<p>Your <strong>.ppt</strong> or <strong>.pptx</strong> deck is rendered to PDF on a server-side office engine — one slide per page, with themes, fonts, and layouts intact. The upload is deleted right after.</p>",
     accept:
       ".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation",
     multiple: false,
-    capability: "server",
+    capability: "server-api",
   }),
   tool({
     slug: "excel-to-pdf",
@@ -553,11 +554,11 @@ export const PDF_TOOLS: PdfToolDef[] = [
     h1: "Convert Excel to PDF",
     description: "Format .xls / .xlsx spreadsheets into print-ready PDF.",
     longDescription:
-      "<p>Spreadsheet pagination, print areas, and cell styling need a server-side office engine to match desktop output. That engine is not enabled in this build.</p>",
+      "<p>Your <strong>.xls</strong> or <strong>.xlsx</strong> workbook is rendered to a print-ready PDF by a server-side office engine, honouring column widths, cell styling, and sheet layout. The upload is deleted right after.</p>",
     accept:
       ".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     multiple: false,
-    capability: "server",
+    capability: "server-api",
   }),
   tool({
     slug: "pdf-to-pdfa",
@@ -569,10 +570,10 @@ export const PDF_TOOLS: PdfToolDef[] = [
     description:
       "Transform a PDF into ISO 19005 PDF/A for long-term archiving.",
     longDescription:
-      "<p>PDF/A conformance requires embedding all fonts, colour profiles, and XMP metadata, then validating against the ISO profile — a job for a server-side tool such as Ghostscript or veraPDF. Not enabled in this build.</p>",
+      "<p>Your PDF is reprocessed by a server-side engine into ISO&nbsp;19005 <strong>PDF/A</strong> (PDF/A-2b): fonts embedded, colour managed, and XMP metadata written for long-term archiving. The upload is deleted right after.</p>",
     accept: PDF_ACCEPT,
     multiple: false,
-    capability: "server",
+    capability: "server-api",
   }),
   tool({
     slug: "translate-pdf",

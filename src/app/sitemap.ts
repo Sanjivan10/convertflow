@@ -3,6 +3,7 @@ import { absoluteUrl } from "@/lib/site";
 import { getPublishedToolSlugs } from "@/lib/tools";
 import { getPublishedPosts } from "@/lib/blog";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
+import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 
 export const revalidate = 300;
 
@@ -51,5 +52,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...toolRoutes, ...pdfToolRoutes, ...postRoutes];
+  const compressRoutes: MetadataRoute.Sitemap = COMPRESS_TOOLS.map((tool) => ({
+    url: absoluteUrl(`/compress/${tool.slug}`),
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: tool.featured ? 0.85 : 0.75,
+  }));
+
+  return [
+    ...staticRoutes,
+    ...toolRoutes,
+    ...pdfToolRoutes,
+    ...compressRoutes,
+    ...postRoutes,
+  ];
 }

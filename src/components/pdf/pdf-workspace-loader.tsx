@@ -26,6 +26,7 @@ export function PdfWorkspaceLoader(props: {
   accept: string;
   multiple: boolean;
   capability: ToolCapability;
+  conversionConfigured?: boolean;
 }) {
   return <PdfWorkspace {...props} />;
 }

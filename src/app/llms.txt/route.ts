@@ -1,5 +1,6 @@
 import { absoluteUrl, siteConfig } from "@/lib/site";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
+import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 import { TOOL_CATALOG } from "@/lib/tool-catalog";
 import { getPublishedPosts } from "@/lib/blog";
 
@@ -89,6 +90,13 @@ ${TOOL_CATALOG.filter((t) => t.status === "PUBLISHED")
     line(t.name, absoluteUrl(`/convert/${t.slug}`), t.description),
   )
   .join("\n")}
+
+## Compressors (reduce file size)
+
+${COMPRESS_TOOLS.map((t) =>
+  line(t.name, absoluteUrl(`/compress/${t.slug}`), t.description),
+).join("\n")}
+- [PDF Compressor](${absoluteUrl("/tools/compress-pdf")}): Shrink PDF file size with structural repacking or image downscaling.
 
 ## Blog
 

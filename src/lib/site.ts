@@ -11,8 +11,9 @@ export const siteConfig = {
   adsenseClient: process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "",
   nav: [
     { title: "All Tools", href: "/tools" },
-    { title: "Image", href: "/tools?category=image" },
     { title: "PDF", href: "/tools?category=pdf" },
+    { title: "Compress", href: "/tools?category=compress" },
+    { title: "Image", href: "/tools?category=image" },
     { title: "Blog", href: "/blog" },
   ],
 } as const;

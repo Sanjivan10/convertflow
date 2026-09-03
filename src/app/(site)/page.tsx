@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Lock, Zap, Gauge } from "lucide-react";
 import { getPublishedTools } from "@/lib/tools";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
+import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 import { ToolSearch } from "@/components/tool-search";
 import { AdZone } from "@/components/ad-zone";
 import type { ToolCardData } from "@/components/tool-card";
@@ -27,7 +28,16 @@ export default async function HomePage() {
     category: t.category,
     href: `/${t.routePrefix}/${t.slug}`,
   }));
-  const allCards = [...imageCards, ...pdfCards];
+  const compressCards: ToolCardData[] = COMPRESS_TOOLS.map((t) => ({
+    slug: t.slug,
+    name: t.name,
+    fromFormat: "SIZE",
+    toFormat: "SMALLER",
+    description: t.description,
+    category: "compress",
+    href: `/compress/${t.slug}`,
+  }));
+  const allCards = [...imageCards, ...pdfCards, ...compressCards];
   const featuredPdf = PDF_TOOLS.filter((t) => t.featured);
 
   return (
@@ -75,6 +85,28 @@ export default async function HomePage() {
             <ToolLink
               key={tool.slug}
               href={`/${tool.routePrefix}/${tool.slug}`}
+              name={tool.name}
+              hint={tool.description}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="py-10">
+        <div className="flex items-end justify-between">
+          <h2 className="text-2xl font-bold">Compressors</h2>
+          <Link
+            href="/tools?category=compress"
+            className="inline-flex items-center gap-1 text-sm font-medium text-sky-600 hover:underline"
+          >
+            Browse all <ArrowRight className="size-4" />
+          </Link>
+        </div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {COMPRESS_TOOLS.map((tool) => (
+            <ToolLink
+              key={tool.slug}
+              href={`/compress/${tool.slug}`}
               name={tool.name}
               hint={tool.description}
             />

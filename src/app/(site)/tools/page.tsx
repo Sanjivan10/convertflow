@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getPublishedTools } from "@/lib/tools";
 import { PDF_TOOLS, PDF_TOOL_CATEGORIES } from "@/lib/pdf/catalog";
+import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 import {
   breadcrumbSchema,
   buildMetadata,
@@ -25,10 +26,11 @@ export const metadata: Metadata = buildMetadata({
 const LABELS: Record<string, string> = {
   image: "Image converters",
   pdf: "PDF tools",
+  compress: "Compressors",
   ...Object.fromEntries(PDF_TOOL_CATEGORIES.map((c) => [c.id, c.label])),
 };
 
-type Card = ToolCardData & { group: "image" | "pdf" };
+type Card = ToolCardData & { group: "image" | "pdf" | "compress" };
 
 export default async function ToolsPage({
   searchParams,
@@ -62,7 +64,18 @@ export default async function ToolsPage({
     };
   });
 
-  const all: Card[] = [...imageCards, ...pdfCards];
+  const compressCards: Card[] = COMPRESS_TOOLS.map((t) => ({
+    slug: t.slug,
+    name: t.name,
+    fromFormat: t.category === "video-audio" ? "MEDIA" : t.category.toUpperCase(),
+    toFormat: "SMALLER",
+    description: t.description,
+    category: t.category,
+    href: `/compress/${t.slug}`,
+    group: "compress" as const,
+  }));
+
+  const all: Card[] = [...imageCards, ...pdfCards, ...compressCards];
 
   const filtered = !category
     ? all
@@ -70,7 +83,9 @@ export default async function ToolsPage({
       ? all.filter((c) => c.group === "image")
       : category === "pdf"
         ? all.filter((c) => c.group === "pdf")
-        : all.filter((c) => c.group === "pdf" && c.category === category);
+        : category === "compress"
+          ? all.filter((c) => c.group === "compress")
+          : all.filter((c) => c.group === "pdf" && c.category === category);
 
   const crumbs: Crumb[] = [
     { name: "Home", path: "/" },
@@ -113,6 +128,11 @@ export default async function ToolsPage({
           active={category === "pdf"}
           href="/tools?category=pdf"
           label="PDF tools"
+        />
+        <CategoryChip
+          active={category === "compress"}
+          href="/tools?category=compress"
+          label="Compressors"
         />
         {PDF_TOOL_CATEGORIES.map((c) => (
           <CategoryChip
