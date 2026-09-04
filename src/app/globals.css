@@ -89,6 +89,29 @@ body {
   border-radius: 0.75rem;
 }
 
+/* --- Google Translate widget cleanup (footer language switcher) --- */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-gadget-icon,
+.goog-te-balloon-frame,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+.goog-te-gadget {
+  font-size: 0 !important;
+}
+.goog-te-gadget .goog-te-combo {
+  margin: 0 !important;
+}
+
 /* Tiptap editor placeholder */
 .ProseMirror:focus {
   outline: none;

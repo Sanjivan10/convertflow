@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getFooterConfig } from "@/lib/footer";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export async function SiteFooter() {
   const cfg = await getFooterConfig();
@@ -71,10 +72,13 @@ export async function SiteFooter() {
         </div>
       </div>
       <div
-        className="border-t py-6 text-center text-xs"
+        className="flex flex-col items-center justify-between gap-3 border-t px-4 py-6 text-center text-xs sm:flex-row"
         style={{ borderColor: `${cfg.textColor}22` }}
       >
-        {cfg.bottomText.replace("{year}", String(new Date().getFullYear()))}
+        <span>
+          {cfg.bottomText.replace("{year}", String(new Date().getFullYear()))}
+        </span>
+        <LanguageSwitcher labelColor={cfg.textColor} />
       </div>
     </footer>
   );
