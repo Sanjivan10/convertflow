@@ -6,11 +6,17 @@ export type DashboardStats = {
   totalConversions: number;
   pageviews7d: number;
   conversions7d: number;
+  clicks7d: number;
+  totalClicks: number;
+  searches7d: number;
   publishedTools: number;
   publishedPosts: number;
   daily: { date: string; pageviews: number; conversions: number }[];
   topTools: { toolSlug: string; count: number }[];
   topPages: { path: string; count: number }[];
+  topCountries: { country: string; count: number }[];
+  topQueries: { query: string; count: number }[];
+  topClickTargets: { target: string; count: number }[];
   recentConversions: {
     id: string;
     toolSlug: string;
@@ -34,13 +40,32 @@ function emptyStats(): DashboardStats {
     totalConversions: 0,
     pageviews7d: 0,
     conversions7d: 0,
+    clicks7d: 0,
+    totalClicks: 0,
+    searches7d: 0,
     publishedTools: 0,
     publishedPosts: 0,
     daily,
     topTools: [],
     topPages: [],
+    topCountries: [],
+    topQueries: [],
+    topClickTargets: [],
     recentConversions: [],
   };
+}
+
+function tally<T>(items: T[], key: (t: T) => string | null | undefined, limit: number) {
+  const map = new Map<string, number>();
+  for (const it of items) {
+    const k = key(it);
+    if (!k) continue;
+    map.set(k, (map.get(k) ?? 0) + 1);
+  }
+  return [...map.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([k, count]) => ({ k, count }));
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -52,16 +77,25 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     const since7 = new Date(now);
     since7.setDate(now.getDate() - 7);
 
+    const since30 = new Date(now);
+    since30.setDate(now.getDate() - 30);
+
     const [
       totalPageviews,
       totalConversions,
       pageviews7d,
       conversions7d,
+      clicks7d,
+      totalClicks,
+      searches7d,
       publishedTools,
       publishedPosts,
       events,
       topToolsRaw,
       topPagesRaw,
+      topCountriesRaw,
+      searchEvents,
+      clickEvents,
       recentConversions,
     ] = await Promise.all([
       prisma.analyticsEvent.count({ where: { type: "PAGEVIEW" } }),
@@ -71,6 +105,13 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       }),
       prisma.analyticsEvent.count({
         where: { type: "CONVERSION", createdAt: { gte: since7 } },
+      }),
+      prisma.analyticsEvent.count({
+        where: { type: "CLICK", createdAt: { gte: since7 } },
+      }),
+      prisma.analyticsEvent.count({ where: { type: "CLICK" } }),
+      prisma.analyticsEvent.count({
+        where: { type: "SEARCH", createdAt: { gte: since7 } },
       }),
       prisma.tool.count({ where: { status: "PUBLISHED" } }),
       prisma.post.count({ where: { status: "PUBLISHED" } }),
@@ -90,13 +131,50 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         where: { type: "PAGEVIEW" },
         _count: { _all: true },
         orderBy: { _count: { path: "desc" } },
-        take: 6,
+        take: 8,
+      }),
+      prisma.analyticsEvent.groupBy({
+        by: ["country"],
+        where: { country: { not: null }, createdAt: { gte: since30 } },
+        _count: { _all: true },
+        orderBy: { _count: { country: "desc" } },
+        take: 10,
+      }),
+      prisma.analyticsEvent.findMany({
+        where: { type: "SEARCH", createdAt: { gte: since30 } },
+        select: { meta: true },
+        take: 5000,
+      }),
+      prisma.analyticsEvent.findMany({
+        where: { type: "CLICK", createdAt: { gte: since30 } },
+        select: { meta: true },
+        take: 5000,
       }),
       prisma.conversionLog.findMany({
         orderBy: { createdAt: "desc" },
         take: 12,
       }),
     ]);
+
+    const readMeta = (m: unknown): Record<string, unknown> => {
+      if (typeof m !== "string") return {};
+      try {
+        const v = JSON.parse(m);
+        return v && typeof v === "object" ? v : {};
+      } catch {
+        return {};
+      }
+    };
+    const topQueries = tally(
+      searchEvents.map((e) => readMeta(e.meta)),
+      (m) => (typeof m.query === "string" ? m.query : null),
+      12,
+    ).map((r) => ({ query: r.k, count: r.count }));
+    const topClickTargets = tally(
+      clickEvents.map((e) => readMeta(e.meta)),
+      (m) => (typeof m.target === "string" ? m.target : null),
+      10,
+    ).map((r) => ({ target: r.k, count: r.count }));
 
     const dailyMap = new Map<
       string,
@@ -121,6 +199,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       totalConversions,
       pageviews7d,
       conversions7d,
+      clicks7d,
+      totalClicks,
+      searches7d,
       publishedTools,
       publishedPosts,
       daily: [...dailyMap.values()],
@@ -131,6 +212,11 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         path: p.path,
         count: p._count._all,
       })),
+      topCountries: topCountriesRaw
+        .filter((c) => c.country)
+        .map((c) => ({ country: c.country as string, count: c._count._all })),
+      topQueries,
+      topClickTargets,
       recentConversions: recentConversions.map((c) => ({
         id: c.id,
         toolSlug: c.toolSlug,

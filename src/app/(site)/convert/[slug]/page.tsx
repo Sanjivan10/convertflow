@@ -8,15 +8,25 @@ import {
   breadcrumbSchema,
   buildMetadata,
   faqPageSchema,
+  howToSchema,
   jsonLdScript,
   softwareApplicationSchema,
+  speakableSchema,
   type Crumb,
 } from "@/lib/seo";
+import { conversionRationale, formatInfo } from "@/lib/format-info";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { FaqSection } from "@/components/faq-section";
 import { AdZone } from "@/components/ad-zone";
 import { Converter } from "@/components/converter/converter";
 import { ToolCard } from "@/components/tool-card";
+import {
+  FormatExplainer,
+  HowToSteps,
+  QuickAnswer,
+  TrustBar,
+  type HowToStep,
+} from "@/components/tool/seo-blocks";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -83,6 +93,30 @@ export default async function ConvertToolPage({
     .filter((t) => t.slug !== tool.slug && t.category === tool.category)
     .slice(0, 3);
 
+  const from = tool.fromFormat;
+  const to = tool.toFormat;
+  const path = `/convert/${tool.slug}`;
+  const steps: HowToStep[] = [
+    {
+      name: `Add your ${from} file${tool.engine === "IMAGE" ? "(s)" : ""}`,
+      text: `Drag a ${from} file onto the box above, or click to browse. You can add several at once.`,
+    },
+    {
+      name: `Convert to ${to}`,
+      text: `Press "Convert to ${to}". The file is processed right in your browser — nothing is uploaded to a server.`,
+    },
+    {
+      name: `Download the ${to}`,
+      text: `Save each ${to} result individually, or use "Download all" to get them in one go.`,
+    },
+  ];
+  const featureList = [
+    `${from} to ${to} conversion`,
+    "Batch processing",
+    "In-browser — no upload",
+    "No watermark, no sign-up",
+  ];
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <script
@@ -91,8 +125,26 @@ export default async function ConvertToolPage({
           softwareApplicationSchema({
             name: tool.name,
             description: tool.metaDescription ?? tool.description,
-            path: `/convert/${tool.slug}`,
+            path,
+            featureList,
           }),
+        )}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          howToSchema({
+            name: `How to convert ${from} to ${to}`,
+            description: `Convert ${from} files to ${to} online for free in three steps.`,
+            path,
+            steps,
+          }),
+        )}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          speakableSchema(path, [".quick-answer", "h1"]),
         )}
       />
       <script
@@ -110,17 +162,29 @@ export default async function ConvertToolPage({
 
       <header className="mt-4">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-          {tool.fromFormat} to {tool.toFormat} Converter
+          {from} to {to} Converter
         </h1>
         <p className="mt-2 text-slate-500">{tool.description}</p>
       </header>
+
+      <QuickAnswer>
+        <strong>
+          To convert {from} to {to}:
+        </strong>{" "}
+        add your {from} file to the tool above, click{" "}
+        <em>Convert to {to}</em>, and download the result. It is free, works in
+        any browser, and the file never leaves your device.{" "}
+        {conversionRationale(from, to)}
+      </QuickAnswer>
+
+      <TrustBar />
 
       <div className="mt-6">
         <Converter
           slug={tool.slug}
           name={tool.name}
-          fromFormat={tool.fromFormat}
-          toFormat={tool.toFormat}
+          fromFormat={from}
+          toFormat={to}
           engine={tool.engine}
           accept={tool.accept}
           customScript={tool.customScript}
@@ -130,7 +194,7 @@ export default async function ConvertToolPage({
       <AdZone zone="tool-bottom" format="leaderboard" className="my-8" />
 
       {tool.longDescription && (
-        <section className="py-6">
+        <section className="py-4">
           <h2 className="text-2xl font-bold">About this tool</h2>
           <div
             className="article mt-4 text-slate-600 dark:text-slate-300"
@@ -139,26 +203,11 @@ export default async function ConvertToolPage({
         </section>
       )}
 
-      <section className="py-6">
-        <h2 className="text-2xl font-bold">
-          How to convert {tool.fromFormat} to {tool.toFormat}
-        </h2>
-        <ol className="mt-4 space-y-3 text-slate-600 dark:text-slate-300">
-          <li>
-            <h3 className="inline font-semibold">1. Add your files.</h3> Drag{" "}
-            {tool.fromFormat} files onto the box above or click to browse.
-          </li>
-          <li>
-            <h3 className="inline font-semibold">2. Convert.</h3> Press{" "}
-            <em>Convert to {tool.toFormat}</em>. Processing happens locally in
-            your browser.
-          </li>
-          <li>
-            <h3 className="inline font-semibold">3. Download.</h3> Save each{" "}
-            {tool.toFormat} result — individually or all at once.
-          </li>
-        </ol>
-      </section>
+      <HowToSteps heading={`How to convert ${from} to ${to}`} steps={steps} />
+
+      {(formatInfo(from) || formatInfo(to)) && (
+        <FormatExplainer from={from} to={to} />
+      )}
 
       <FaqSection items={tool.faq} />
 

@@ -70,7 +70,20 @@ export default async function HomePage() {
 
       <AdZone zone="home-top" format="leaderboard" className="my-4" />
 
-      <section className="py-10">
+      <section className="mx-auto max-w-3xl py-6 text-center">
+        <h2 className="text-2xl font-bold">
+          Free online file converter &amp; PDF toolkit
+        </h2>
+        <p className="mt-3 text-slate-500">
+          {allCards.length}+ free tools to convert images (PNG, JPG, WebP, GIF,
+          HEIC), work with PDFs (merge, split, sign, watermark, OCR, compress,
+          fill forms), and turn Word, Excel, and PowerPoint files into PDF.
+          Image and most PDF tools run entirely in your browser — files are
+          never uploaded, there is no watermark, and no account is needed.
+        </p>
+      </section>
+
+      <section className="py-6">
         <div className="flex items-end justify-between">
           <h2 className="text-2xl font-bold">PDF Tools</h2>
           <Link
@@ -125,7 +138,7 @@ export default async function HomePage() {
           </Link>
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {imageCards.slice(0, 9).map((tool) => (
+          {imageCards.map((tool) => (
             <ToolLink
               key={tool.slug}
               href={`/convert/${tool.slug}`}

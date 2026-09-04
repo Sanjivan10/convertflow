@@ -7,8 +7,10 @@ import {
   breadcrumbSchema,
   buildMetadata,
   faqPageSchema,
+  howToSchema,
   jsonLdScript,
   softwareApplicationSchema,
+  speakableSchema,
   type Crumb,
 } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -16,6 +18,12 @@ import { FaqSection } from "@/components/faq-section";
 import { AdZone } from "@/components/ad-zone";
 import { Badge } from "@/components/ui/badge";
 import { CompressWorkspaceLoader } from "@/components/compress/compress-workspace-loader";
+import {
+  HowToSteps,
+  QuickAnswer,
+  TrustBar,
+  type HowToStep,
+} from "@/components/tool/seo-blocks";
 
 export const revalidate = 300;
 export const dynamicParams = false;
@@ -68,6 +76,24 @@ export default async function CompressToolPage({
 
   const needsSetup = tool.engine === "server" && !configured;
 
+  const steps: HowToStep[] = [
+    {
+      name: "Add your file",
+      text: `Drop your file onto the ${tool.name} box above, or click to browse.`,
+    },
+    {
+      name: "Set the quality",
+      text: "Drag the quality slider — a lower value makes the file smaller. The output size is shown before you download.",
+    },
+    {
+      name: "Download",
+      text:
+        tool.engine === "image"
+          ? "The compressed file is created in your browser and never uploaded. Click Download."
+          : "The file is compressed on the server, then deleted. Click Download.",
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <script
@@ -77,7 +103,25 @@ export default async function CompressToolPage({
             name: tool.name,
             description: tool.metaDescription,
             path,
+            featureList: [tool.name, "Adjustable quality", "Free — no sign-up", "No watermark"],
           }),
+        )}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          howToSchema({
+            name: tool.h1,
+            description: tool.metaDescription,
+            path,
+            steps,
+          }),
+        )}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          speakableSchema(path, [".quick-answer", "h1"]),
         )}
       />
       <script
@@ -103,6 +147,17 @@ export default async function CompressToolPage({
         <p className="mt-2 text-slate-500">{tool.description}</p>
       </header>
 
+      <QuickAnswer>
+        <strong>{tool.h1}:</strong> add your file above, lower the quality
+        slider until the size is small enough, and download the compressed
+        file. It is free, needs no sign-up, and{" "}
+        {tool.engine === "image"
+          ? "runs entirely in your browser."
+          : "the uploaded file is deleted right after processing."}
+      </QuickAnswer>
+
+      <TrustBar />
+
       <AdZone zone="tool-top" format="leaderboard" className="my-6" />
 
       <div className="mt-2">
@@ -126,26 +181,7 @@ export default async function CompressToolPage({
             />
           </section>
 
-          <section className="py-4">
-            <h2 className="text-2xl font-bold">How it works</h2>
-            <ol className="mt-4 space-y-3 text-slate-600 dark:text-slate-300">
-              <li>
-                <h3 className="inline font-semibold">1. Add your file(s).</h3>{" "}
-                Drop them onto the box above.
-              </li>
-              <li>
-                <h3 className="inline font-semibold">2. Set the quality.</h3>{" "}
-                Lower quality = smaller file. Preview the output size before
-                downloading.
-              </li>
-              <li>
-                <h3 className="inline font-semibold">3. Download.</h3>{" "}
-                {tool.engine === "image"
-                  ? "The compressed file is created in your browser — nothing is uploaded."
-                  : "The file is compressed on the server and then deleted."}
-              </li>
-            </ol>
-          </section>
+          <HowToSteps heading="How it works" steps={steps} />
 
           <FaqSection items={tool.faq} />
         </div>

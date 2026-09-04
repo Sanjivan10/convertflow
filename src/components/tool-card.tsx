@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { trackClick } from "@/lib/track";
 
 export type ToolCardData = {
   slug: string;
@@ -13,10 +16,21 @@ export type ToolCardData = {
   href?: string;
 };
 
-export function ToolCard({ tool }: { tool: ToolCardData }) {
+export function ToolCard({
+  tool,
+  source,
+}: {
+  tool: ToolCardData;
+  /** Where the card is shown — recorded with the click event. */
+  source?: string;
+}) {
+  const href = tool.href ?? `/convert/${tool.slug}`;
   return (
     <Link
-      href={tool.href ?? `/convert/${tool.slug}`}
+      href={href}
+      onClick={() =>
+        trackClick(`tool:${tool.slug}`, { from: source ?? "grid", href })
+      }
       className="group flex flex-col rounded-xl border border-slate-200 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-950 dark:hover:border-sky-800"
     >
       <div className="flex items-center gap-2">

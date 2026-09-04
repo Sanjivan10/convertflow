@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { ToolCard, type ToolCardData } from "@/components/tool-card";
+import { trackSearch } from "@/lib/track";
 
 export function ToolSearch({
   tools,
@@ -14,6 +15,7 @@ export function ToolSearch({
   autoFocus?: boolean;
 }) {
   const [query, setQuery] = useState(initialQuery);
+  const logged = useRef<Set<string>>(new Set());
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -24,6 +26,17 @@ export function ToolSearch({
         .includes(q),
     );
   }, [query, tools]);
+
+  // Log the query 900ms after the visitor stops typing (once per unique query).
+  useEffect(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2 || logged.current.has(q)) return;
+    const id = setTimeout(() => {
+      logged.current.add(q);
+      trackSearch(q);
+    }, 900);
+    return () => clearTimeout(id);
+  }, [query]);
 
   return (
     <div>
@@ -45,7 +58,7 @@ export function ToolSearch({
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {results.map((tool) => (
-          <ToolCard key={tool.slug} tool={tool} />
+          <ToolCard key={tool.slug} tool={tool} source="search" />
         ))}
       </div>
 

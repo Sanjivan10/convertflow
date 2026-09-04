@@ -2,8 +2,10 @@ import Link from "next/link";
 import {
   breadcrumbSchema,
   faqPageSchema,
+  howToSchema,
   jsonLdScript,
   softwareApplicationSchema,
+  speakableSchema,
   type Crumb,
 } from "@/lib/seo";
 import { PDF_TOOLS, type PdfToolDef } from "@/lib/pdf/catalog";
@@ -13,6 +15,12 @@ import { FaqSection } from "@/components/faq-section";
 import { AdZone } from "@/components/ad-zone";
 import { Badge } from "@/components/ui/badge";
 import { PdfWorkspaceLoader } from "@/components/pdf/pdf-workspace-loader";
+import {
+  HowToSteps,
+  QuickAnswer,
+  TrustBar,
+  type HowToStep,
+} from "@/components/tool/seo-blocks";
 
 const CAPABILITY_LABEL = {
   client: null,
@@ -38,6 +46,24 @@ export function PdfToolPage({ tool }: { tool: PdfToolDef }) {
     (t) => t.slug !== tool.slug && t.category === tool.category,
   ).slice(0, 3);
 
+  const steps: HowToStep[] = [
+    {
+      name: "Add your file",
+      text: `Drop your file onto the ${tool.name} workspace above, or click to browse for it.`,
+    },
+    {
+      name: "Choose the options",
+      text: `Adjust the settings for ${tool.name.toLowerCase()} — the defaults work for most files.`,
+    },
+    {
+      name: "Download the result",
+      text:
+        tool.capability === "server-api"
+          ? "The file is processed on the server and deleted straight after. Click Download to save it."
+          : "The result is generated in your browser — nothing is uploaded. Click Download to save it.",
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <script
@@ -47,7 +73,25 @@ export function PdfToolPage({ tool }: { tool: PdfToolDef }) {
             name: tool.name,
             description: tool.metaDescription,
             path,
+            featureList: [tool.name, "Free — no sign-up", "No watermark", "Any browser"],
           }),
+        )}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          howToSchema({
+            name: tool.h1,
+            description: tool.metaDescription,
+            path,
+            steps,
+          }),
+        )}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          speakableSchema(path, [".quick-answer", "h1"]),
         )}
       />
       <script
@@ -83,6 +127,14 @@ export function PdfToolPage({ tool }: { tool: PdfToolDef }) {
         <p className="mt-2 text-slate-500">{tool.description}</p>
       </header>
 
+      <QuickAnswer>
+        <strong>{tool.h1}:</strong> {tool.description} Add your file to the tool
+        above, apply it, and download the result — free, in any browser, with no
+        sign-up.
+      </QuickAnswer>
+
+      <TrustBar />
+
       <AdZone zone="tool-top" format="leaderboard" className="my-6" />
 
       <div className="mt-2">
@@ -109,23 +161,7 @@ export function PdfToolPage({ tool }: { tool: PdfToolDef }) {
             </section>
           )}
 
-          <section className="py-4">
-            <h2 className="text-2xl font-bold">How it works</h2>
-            <ol className="mt-4 space-y-3 text-slate-600 dark:text-slate-300">
-              <li>
-                <h3 className="inline font-semibold">1. Add your file(s).</h3>{" "}
-                Drop them onto the workspace above.
-              </li>
-              <li>
-                <h3 className="inline font-semibold">2. Set the options.</h3>{" "}
-                Adjust the controls for {tool.name.toLowerCase()}.
-              </li>
-              <li>
-                <h3 className="inline font-semibold">3. Download.</h3> The
-                result is generated locally — nothing is uploaded.
-              </li>
-            </ol>
-          </section>
+          <HowToSteps heading={`How to use ${tool.name}`} steps={steps} />
 
           <FaqSection items={tool.faq} />
         </div>

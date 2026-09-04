@@ -2,6 +2,7 @@ import { absoluteUrl, siteConfig } from "@/lib/site";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 import { TOOL_CATALOG } from "@/lib/tool-catalog";
+import { FORMATS } from "@/lib/format-info";
 import { getPublishedPosts } from "@/lib/blog";
 
 export const revalidate = 3600;
@@ -97,6 +98,12 @@ ${COMPRESS_TOOLS.map((t) =>
   line(t.name, absoluteUrl(`/compress/${t.slug}`), t.description),
 ).join("\n")}
 - [PDF Compressor](${absoluteUrl("/tools/compress-pdf")}): Shrink PDF file size with structural repacking or image downscaling.
+
+## File formats reference
+
+${Object.values(FORMATS)
+  .map((f) => `- **${f.key}** (${f.name}): ${f.what} Best for: ${f.bestFor}`)
+  .join("\n")}
 
 ## Blog
 

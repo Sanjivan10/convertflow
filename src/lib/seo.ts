@@ -110,31 +110,94 @@ export function websiteSchema() {
   };
 }
 
-/** SoftwareApplication schema for a converter tool page. */
+/**
+ * SoftwareApplication + WebApplication schema for a tool page.
+ * `aggregateRating` is emitted ONLY when a real rating count is supplied —
+ * synthetic ratings violate Google's structured-data guidelines.
+ */
 export function softwareApplicationSchema(input: {
   name: string;
   description: string;
   path: string;
   ratingValue?: number;
   ratingCount?: number;
+  featureList?: string[];
 }) {
-  return {
+  const base: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
+    "@type": ["SoftwareApplication", "WebApplication"],
     name: input.name,
     description: input.description,
     url: absoluteUrl(input.path),
-    applicationCategory: "MultimediaApplication",
+    applicationCategory: "UtilitiesApplication",
     operatingSystem: "Any (web browser)",
+    browserRequirements: "Requires JavaScript. Works in Chrome, Edge, Firefox, Safari.",
+    isAccessibleForFree: true,
     offers: {
       "@type": "Offer",
       price: "0",
       priceCurrency: "USD",
     },
-    aggregateRating: {
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.publisher,
+      url: siteConfig.url,
+    },
+  };
+  if (input.featureList?.length) base.featureList = input.featureList;
+  if (input.ratingCount && input.ratingCount > 0 && input.ratingValue) {
+    base.aggregateRating = {
       "@type": "AggregateRating",
-      ratingValue: input.ratingValue ?? 4.8,
-      ratingCount: input.ratingCount ?? 1240,
+      ratingValue: input.ratingValue,
+      ratingCount: input.ratingCount,
+      bestRating: 5,
+      worstRating: 1,
+    };
+  }
+  return base;
+}
+
+/** HowTo schema — Google shows this as a rich result for "how to …" queries. */
+export function howToSchema(input: {
+  name: string;
+  description: string;
+  path: string;
+  steps: { name: string; text: string }[];
+  totalTime?: string; // ISO 8601 duration, e.g. "PT1M"
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: input.name,
+    description: input.description,
+    totalTime: input.totalTime ?? "PT1M",
+    estimatedCost: { "@type": "MonetaryAmount", currency: "USD", value: "0" },
+    supply: [],
+    tool: [
+      {
+        "@type": "HowToTool",
+        name: `A web browser and ${siteConfig.name}`,
+      },
+    ],
+    step: input.steps.map((s, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+      url: `${absoluteUrl(input.path)}#step-${i + 1}`,
+    })),
+  };
+}
+
+/** Marks a short answer paragraph as voice-assistant / AI readable. */
+export function speakableSchema(path: string, cssSelectors: string[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": absoluteUrl(path),
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: cssSelectors,
     },
   };
 }

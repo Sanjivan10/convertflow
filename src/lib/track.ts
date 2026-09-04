@@ -1,7 +1,9 @@
 "use client";
 
+type EventType = "PAGEVIEW" | "CONVERSION" | "SEARCH" | "CLICK";
+
 type TrackPayload = {
-  type: "PAGEVIEW" | "CONVERSION";
+  type: EventType;
   path: string;
   toolSlug?: string;
   meta?: Record<string, unknown>;
@@ -30,6 +32,26 @@ export function track(payload: TrackPayload): void {
   } catch {
     /* analytics must never break the page */
   }
+}
+
+/** Log a site-search query (what visitors type into the tool search box). */
+export function trackSearch(query: string): void {
+  const q = query.trim().toLowerCase().slice(0, 120);
+  if (q.length < 2) return;
+  track({
+    type: "SEARCH",
+    path: typeof location !== "undefined" ? location.pathname : "/",
+    meta: { query: q },
+  });
+}
+
+/** Log a click on a tool link, CTA, or download button. */
+export function trackClick(target: string, meta: Record<string, unknown> = {}): void {
+  track({
+    type: "CLICK",
+    path: typeof location !== "undefined" ? location.pathname : "/",
+    meta: { target: String(target).slice(0, 160), ...meta },
+  });
 }
 
 export function logConversion(input: {
