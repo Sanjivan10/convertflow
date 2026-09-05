@@ -54,7 +54,12 @@ export const DEFAULT_FOOTER: FooterConfig = {
     },
     {
       title: "Company",
-      links: [{ label: "Admin", href: "/admin" }],
+      links: [
+        { label: "About", href: "/about" },
+        { label: "Contact", href: "/contact" },
+        { label: "Privacy Policy", href: "/privacy" },
+        { label: "Terms of Service", href: "/terms" },
+      ],
     },
   ],
 };
