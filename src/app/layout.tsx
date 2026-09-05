@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/site";
@@ -51,10 +50,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={jsonLdScript(websiteSchema())}
         />
         {adsenseClient ? (
-          <Script
+          // A plain, literal <script> tag — not next/script — so it appears
+          // verbatim in the server-rendered HTML. Google's AdSense
+          // site-verification crawler reads raw HTML source and doesn't run
+          // client JS, so next/script's client-injected/preload approach
+          // (even with the "beforeInteractive" strategy) is invisible to it.
+          <script
             id="adsbygoogle-init"
             async
-            strategy="afterInteractive"
             crossOrigin="anonymous"
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
           />
