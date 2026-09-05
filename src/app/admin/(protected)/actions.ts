@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { can, canEditPost, type Permission } from "@/lib/permissions";
+import { pingIndexNow } from "@/lib/indexnow";
 
 async function requireUser() {
   const session = await auth();
@@ -151,6 +152,7 @@ export async function savePost(formData: FormData) {
   revalidatePath(`/blog/${slug}`);
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/blogs");
+  if (publish) void pingIndexNow(["/blog", `/blog/${slug}`, "/sitemap.xml"]);
   redirect(`/admin/blogs/${savedId}?saved=1`);
 }
 
@@ -248,6 +250,9 @@ export async function saveTool(formData: FormData) {
   revalidatePath(`/convert/${slug}`);
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/tool-builder");
+  if (parsed.status === "PUBLISHED") {
+    void pingIndexNow(["/tools", `/convert/${slug}`, "/sitemap.xml"]);
+  }
   redirect(`/admin/tool-builder/${savedId}?saved=1`);
 }
 
