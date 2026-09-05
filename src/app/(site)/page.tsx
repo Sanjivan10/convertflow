@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Lock, Zap, Gauge } from "lucide-react";
 import { getPublishedTools } from "@/lib/tools";
@@ -5,9 +6,26 @@ import { PDF_TOOLS } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 import { ToolSearch } from "@/components/tool-search";
 import { AdZone } from "@/components/ad-zone";
+import { buildMetadata } from "@/lib/seo";
+import { siteConfig } from "@/lib/site";
 import type { ToolCardData } from "@/components/tool-card";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = buildMetadata({
+  title: "ConvertFlow — Free Online File Converter",
+  description: siteConfig.description,
+  path: "/",
+  keywords: [
+    "free online file converter",
+    "convert pdf online free",
+    "image converter",
+    "pdf tools online",
+    "compress pdf online",
+    "png to jpg converter",
+    "merge pdf files free",
+  ],
+});
 
 export default async function HomePage() {
   const tools = await getPublishedTools();
