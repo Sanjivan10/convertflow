@@ -5,7 +5,8 @@ import { getPublishedPosts } from "@/lib/blog";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 
-export const revalidate = 300;
+// Regenerate hourly; also revalidated on-demand from admin publish actions.
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [toolSlugs, posts] = await Promise.all([
