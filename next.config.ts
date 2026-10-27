@@ -27,6 +27,12 @@ const nextConfig: NextConfig = {
   // Hide the framework fingerprint.
   poweredByHeader: false,
 
+  experimental: {
+    // Put the (small, Tailwind) CSS inside the HTML instead of a separate
+    // render-blocking file — faster first paint on slow mobile connections.
+    inlineCss: true,
+  },
+
   // This project lives beside another app that has its own lockfile; pin the root.
   turbopack: {
     root: fileURLToPath(new URL(".", import.meta.url)),
