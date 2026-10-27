@@ -29,6 +29,8 @@ export const metadata: Metadata = {
     url: siteConfig.url,
   },
   twitter: { card: "summary_large_image", creator: siteConfig.twitter },
+  // Google Search Console ownership check.
+  verification: { google: "x8JmNBAcsSoZndmX5A8m5i4XGGN_IuxDXdPgw0yLtB8" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
