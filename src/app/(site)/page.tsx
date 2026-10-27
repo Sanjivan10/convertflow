@@ -70,7 +70,8 @@ export default async function HomePage() {
         </p>
 
         <div className="mx-auto mt-8 max-w-2xl">
-          <ToolSearch tools={allCards} />
+          {/* Only 12 cards render up front; search still covers every tool. */}
+          <ToolSearch tools={allCards} initialLimit={12} />
         </div>
 
         <div className="mx-auto mt-8 flex max-w-xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-500">

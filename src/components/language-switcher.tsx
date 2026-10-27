@@ -46,9 +46,14 @@ export function LanguageSwitcher({
     // The active language lives in a cookie that is only readable in the
     // browser, so it is synced here after mount (avoids an SSR/hydration
     // mismatch on the <select value>).
+    const lang = readCurrent();
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCurrent(readCurrent());
+    setCurrent(lang);
 
+    // Only load Google Translate (~110 KB, and it shifts the page layout)
+    // when a language other than English is chosen. Picking one sets the
+    // cookie and reloads, so the script loads then.
+    if (lang === "en") return;
     if (document.getElementById("google-translate-script")) return;
     window.googleTranslateElementInit = () => {
       try {

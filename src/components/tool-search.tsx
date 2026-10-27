@@ -9,12 +9,16 @@ export function ToolSearch({
   tools,
   initialQuery = "",
   autoFocus = false,
+  initialLimit,
 }: {
   tools: ToolCardData[];
   initialQuery?: string;
   autoFocus?: boolean;
+  /** Show only this many cards until the visitor searches or taps "Show all". */
+  initialLimit?: number;
 }) {
   const [query, setQuery] = useState(initialQuery);
+  const [showAll, setShowAll] = useState(false);
   const logged = useRef<Set<string>>(new Set());
 
   const results = useMemo(() => {
@@ -38,6 +42,10 @@ export function ToolSearch({
     return () => clearTimeout(id);
   }, [query]);
 
+  const truncated =
+    Boolean(initialLimit) && !showAll && !query.trim() && results.length > initialLimit!;
+  const visible = truncated ? results.slice(0, initialLimit) : results;
+
   return (
     <div>
       <div className="relative">
@@ -57,10 +65,20 @@ export function ToolSearch({
       </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {results.map((tool) => (
+        {visible.map((tool) => (
           <ToolCard key={tool.slug} tool={tool} source="search" />
         ))}
       </div>
+
+      {truncated && (
+        <button
+          type="button"
+          onClick={() => setShowAll(true)}
+          className="mt-6 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:border-sky-400 hover:text-sky-700 dark:border-slate-700 dark:text-slate-200"
+        >
+          Show all {results.length} tools
+        </button>
+      )}
 
       {results.length === 0 && (
         <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-slate-700">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/site";
+import { AdsenseLoader } from "@/components/adsense-loader";
 import {
   jsonLdScript,
   organizationSchema,
@@ -12,6 +13,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  // Only used in a few code-style spots; don't compete with the main font.
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -31,6 +34,11 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", creator: siteConfig.twitter },
   // Google Search Console ownership check.
   verification: { google: "x8JmNBAcsSoZndmX5A8m5i4XGGN_IuxDXdPgw0yLtB8" },
+  // AdSense site verification. The AdSense script itself loads lazily
+  // (see AdsenseLoader), so this meta tag is what Google's crawler reads.
+  ...(siteConfig.adsenseClient && {
+    other: { "google-adsense-account": siteConfig.adsenseClient },
+  }),
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -51,19 +59,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={jsonLdScript(websiteSchema())}
         />
-        {adsenseClient ? (
-          // A plain, literal <script> tag — not next/script — so it appears
-          // verbatim in the server-rendered HTML. Google's AdSense
-          // site-verification crawler reads raw HTML source and doesn't run
-          // client JS, so next/script's client-injected/preload approach
-          // (even with the "beforeInteractive" strategy) is invisible to it.
-          <script
-            id="adsbygoogle-init"
-            async
-            crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
-          />
-        ) : null}
+        {adsenseClient ? <AdsenseLoader client={adsenseClient} /> : null}
       </body>
     </html>
   );
