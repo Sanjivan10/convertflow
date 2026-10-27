@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/site";
@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,
+  // iPhone "Add to Home Screen" opens full-screen like an app.
+  appleWebApp: { capable: true, title: siteConfig.shortName, statusBarStyle: "default" },
   openGraph: {
     type: "website",
     siteName: siteConfig.name,
@@ -39,6 +41,10 @@ export const metadata: Metadata = {
   ...(siteConfig.adsenseClient && {
     other: { "google-adsense-account": siteConfig.adsenseClient },
   }),
+};
+
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
