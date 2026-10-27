@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getPostByIdAdmin, getPostBySlug } from "@/lib/blog";
 import { slugify } from "@/lib/utils";
+import { pingIndexNow } from "@/lib/indexnow";
 
 /*
  * Blog tools exposed to Claude over MCP (see src/app/api/mcp/route.ts).
@@ -95,11 +96,13 @@ export const toolDefinitions = (Object.keys(schemas) as ToolName[]).map((name) =
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
 const postUrl = (slug: string) => `${siteUrl}/blog/${slug}`;
 
-function revalidatePost(slug: string) {
+async function revalidatePost(slug: string, published = false) {
   revalidatePath("/blog");
   revalidatePath(`/blog/${slug}`);
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/blogs");
+  // Same as the admin panel: tell Bing/Yandex about newly published posts.
+  if (published) await pingIndexNow(["/blog", `/blog/${slug}`, "/sitemap.xml"]);
 }
 
 const cleanList = (items?: string[], lower = false) =>
@@ -225,7 +228,7 @@ export async function callTool(name: ToolName, rawArgs: unknown): Promise<unknow
         },
         select: { id: true, slug: true, status: true },
       });
-      revalidatePost(created.slug);
+      await revalidatePost(created.slug, created.status === "PUBLISHED");
       return { ...created, url: postUrl(created.slug) };
     }
 
@@ -256,14 +259,14 @@ export async function callTool(name: ToolName, rawArgs: unknown): Promise<unknow
         select: { id: true, slug: true, status: true },
       });
       if (existing.slug !== updated.slug) revalidatePath(`/blog/${existing.slug}`);
-      revalidatePost(updated.slug);
+      await revalidatePost(updated.slug, updated.status === "PUBLISHED");
       return { ...updated, url: postUrl(updated.slug) };
     }
 
     case "delete_post": {
       const a = schemas.delete_post.parse(rawArgs);
       const deleted = await prisma.post.delete({ where: { id: a.id }, select: { slug: true } });
-      revalidatePost(deleted.slug);
+      await revalidatePost(deleted.slug);
       return { deleted: true, id: a.id };
     }
 
