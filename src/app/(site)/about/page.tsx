@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -6,7 +7,7 @@ import type { Crumb } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "About",
-  description: `Why ${siteConfig.name} exists: free, private, browser-based file conversion and PDF tools — no account, no watermark.`,
+  description: `Who runs ${siteConfig.name} and why: free, private, browser-based file converters, PDF tools and logo maker — no account, no watermark, no limits.`,
   path: "/about",
 });
 
@@ -47,6 +48,35 @@ export default function AboutPage() {
           conversion API — that's disclosed clearly on our{" "}
           <a href="/privacy">Privacy Policy</a> and on the tool itself.
         </p>
+
+        <h2>Who is behind {siteConfig.name}</h2>
+        <p>
+          {siteConfig.name} is an independent project built and maintained by
+          Sanjivan Dhakal (Idea2Grow). Every tool is tested on real files —
+          phones and desktops — before it goes live, and we fix bugs reported
+          by visitors quickly. You can follow updates on{" "}
+          <a href="https://x.com/DhakalSanjivan" target="_blank" rel="me noopener">
+            X (@DhakalSanjivan)
+          </a>
+          .
+        </p>
+
+        <h2>Our principles</h2>
+        <ul>
+          <li><strong>Private by default</strong> — if a tool can run in your browser, it does. Files that never leave your device can’t leak.</li>
+          <li><strong>Honest about servers</strong> — the few tools that need a server say so clearly. See <Link href="/how-it-works">How it works</Link>.</li>
+          <li><strong>No catches</strong> — no account, no watermark, no file-count limit, no paywall.</li>
+          <li><strong>Fast on any device</strong> — pages are built to load quickly even on slow mobile connections.</li>
+        </ul>
+
+        <h2>What you can do here</h2>
+        <ul>
+          <li><Link href="/tools?category=image">Convert images</Link> between PNG, JPG, WebP, GIF, HEIC and more.</li>
+          <li><Link href="/tools?category=pdf">Work with PDFs</Link> — merge, split, compress, sign, fill forms, OCR and convert Office files.</li>
+          <li><Link href="/tools?category=compress">Compress files</Link> to share or upload them faster.</li>
+          <li><Link href="/tools?category=logo">Make logo PNGs</Link> with transparent backgrounds for videos and designs.</li>
+          <li>Read step-by-step guides on our <Link href="/blog">blog</Link>.</li>
+        </ul>
 
         <h2>How we keep it free</h2>
         <p>

@@ -31,6 +31,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7,
     },
+    ...["/how-it-works", "/about", "/contact", "/privacy", "/terms"].map((p) => ({
+      url: absoluteUrl(p),
+      lastModified: now,
+      changeFrequency: "yearly" as const,
+      priority: 0.4,
+    })),
   ];
 
   const toolRoutes: MetadataRoute.Sitemap = toolSlugs.map((slug) => ({

@@ -79,7 +79,14 @@ export async function SiteFooter() {
         <span>
           {cfg.bottomText.replace("{year}", String(new Date().getFullYear()))}
         </span>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/how-it-works"
+            className="transition-opacity hover:opacity-70"
+            style={{ color: cfg.textColor }}
+          >
+            How it works
+          </Link>
           {siteConfig.social.map((s) => (
             <a
               key={s.href}

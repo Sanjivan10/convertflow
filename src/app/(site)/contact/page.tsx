@@ -7,7 +7,7 @@ import type { Crumb } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact",
-  description: `Get in touch with the ${siteConfig.name} team.`,
+  description: `Contact ${siteConfig.name}: report a bug, ask about a tool, make a privacy request or discuss advertising. We usually reply within 2 business days.`,
   path: "/contact",
 });
 
@@ -39,6 +39,24 @@ export default function ContactPage() {
             {CONTACT_EMAIL}
           </a>
         </p>
+
+        <p>
+          We usually reply within <strong>2 business days</strong>. You can also
+          reach us on{" "}
+          <a href="https://x.com/DhakalSanjivan" target="_blank" rel="me noopener">
+            X (@DhakalSanjivan)
+          </a>
+          .
+        </p>
+
+        <h2>Reporting a problem with a tool</h2>
+        <p>To help us fix it fast, please include:</p>
+        <ul>
+          <li>The tool’s name or page link.</li>
+          <li>Your device and browser (for example “Android, Chrome” or “iPhone, Safari”).</li>
+          <li>What you expected and what happened instead (a screenshot helps).</li>
+          <li>The file type and roughly its size. Please don’t send private files.</li>
+        </ul>
 
         <h2>Privacy or data requests</h2>
         <p>

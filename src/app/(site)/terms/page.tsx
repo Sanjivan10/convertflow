@@ -10,7 +10,7 @@ export const metadata: Metadata = buildMetadata({
   path: "/terms",
 });
 
-const UPDATED = "September 5, 2026";
+const UPDATED = "October 29, 2026";
 
 export default function TermsPage() {
   const crumbs: Crumb[] = [
@@ -48,6 +48,38 @@ export default function TermsPage() {
           for not using the service for anything illegal, infringing, or
           harmful — including malware, content that violates someone else's
           rights, or content that's unlawful where you live.
+        </p>
+
+        <h2>Acceptable use</h2>
+        <p>Please don’t:</p>
+        <ul>
+          <li>use automated scripts or bots to overload the tools or scrape the site;</li>
+          <li>try to break, bypass or attack the site’s security;</li>
+          <li>use the tools to process content you have no right to use, or to create unlawful content.</li>
+        </ul>
+
+        <h2>Trademarks and brand logos</h2>
+        <p>
+          Some pages show logos of third-party brands (for example the Alight
+          Motion logo). These names and logos are trademarks of their owners and
+          are shown only to identify those products. {siteConfig.name} is not
+          affiliated with or endorsed by them. If you use a brand logo, follow
+          that brand’s guidelines and don’t use it in a way that suggests the
+          brand endorses you. Brand owners can contact us to request changes.
+        </p>
+
+        <h2>Our content</h2>
+        <p>
+          The site’s design, text, articles and code belong to {siteConfig.name}.
+          You may link to any page and quote short parts with a link back, but
+          please don’t copy whole pages or tools.
+        </p>
+
+        <h2>Third-party links and services</h2>
+        <p>
+          The site links to other websites and uses third-party services (such as
+          advertising and translation). We aren’t responsible for their content
+          or policies.
         </p>
 
         <h2>No warranty</h2>
