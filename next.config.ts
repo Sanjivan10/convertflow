@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { fileURLToPath } from "node:url";
+import { LOGO_TOOLS } from "./src/lib/logos/catalog";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -36,6 +37,18 @@ const nextConfig: NextConfig = {
   // This project lives beside another app that has its own lockfile; pin the root.
   turbopack: {
     root: fileURLToPath(new URL(".", import.meta.url)),
+  },
+
+  // Renamed logo tools: old URLs permanently redirect (308) to the new slug so
+  // search engines move rankings over. See `previousSlugs` in the catalog.
+  async redirects() {
+    return LOGO_TOOLS.flatMap((t) =>
+      t.previousSlugs.map((old) => ({
+        source: `/logo/${old}`,
+        destination: `/logo/${t.slug}`,
+        permanent: true,
+      })),
+    );
   },
 
   images: {

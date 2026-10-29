@@ -89,7 +89,7 @@ export function organizationSchema() {
     name: siteConfig.name,
     url: siteConfig.url,
     logo: absoluteUrl("/icon.png"),
-    sameAs: [] as string[],
+    sameAs: siteConfig.social.map((s) => s.href),
   };
 }
 

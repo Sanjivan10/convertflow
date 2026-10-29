@@ -16,7 +16,7 @@ import {
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { FaqSection } from "@/components/faq-section";
 import { AdZone } from "@/components/ad-zone";
-import { LogoStudio } from "@/components/logo/logo-studio";
+import { LogoConverter } from "@/components/logo/logo-converter";
 import {
   HowToSteps,
   QuickAnswer,
@@ -38,7 +38,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const tool = logoToolBySlug(slug);
-  if (!tool) return { title: "Logo not found" };
+  if (!tool) return { title: "Logo tool not found" };
   return buildMetadata({
     title: tool.metaTitle,
     description: tool.metaDescription,
@@ -64,7 +64,6 @@ export default async function LogoToolPage({
   if (!tool) notFound();
 
   const path = `/logo/${tool.slug}`;
-  const fileBase = tool.slug.replace(/-png$/, "");
   const crumbs: Crumb[] = [
     { name: "Home", path: "/" },
     { name: "Logos", path: "/tools?category=logo" },
@@ -73,16 +72,20 @@ export default async function LogoToolPage({
 
   const steps: HowToStep[] = [
     {
-      name: "Choose a version",
-      text: `Pick the original ${tool.brand} logo, the white-text version for dark backgrounds, an all-white or all-black version, the icon, or the circle icon.`,
+      name: "Upload your logo",
+      text: "Drop any logo onto the tool — PNG, JPG, WebP, SVG, GIF or BMP. It opens instantly in your browser and is never uploaded.",
     },
     {
-      name: "Set format, size and background",
-      text: "Choose PNG, JPG, WebP or SVG, a width up to 6000 px, and a transparent, white, black or custom background. Add padding if you need space around the logo.",
+      name: "Remove the background",
+      text: "The background color is detected and removed automatically — including inside letters — with soft, halo-free edges. Tap the background to pick its color and adjust Strength if anything is left.",
     },
     {
-      name: "Download",
-      text: "Press Download. The file is created instantly in your browser — free, with no sign-up and no watermark.",
+      name: "Style it for motion videos",
+      text: "Keep the original colors or make the logo white, black or any color, add a circle or rounded badge, and set the padding.",
+    },
+    {
+      name: "Choose size and download",
+      text: "Pick PNG or WebP for a transparent background (or JPG), choose a width up to 4K, and press Download. Import the PNG into Alight Motion with + → Image & Video.",
     },
   ];
 
@@ -105,16 +108,17 @@ export default async function LogoToolPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={jsonLdScript(
           softwareApplicationSchema({
-            name: `${tool.name} Downloader`,
+            name: tool.name,
             description: tool.metaDescription,
             path,
             featureList: [
-              "Transparent PNG",
-              "HD up to 6000 px",
-              "PNG, JPG, WebP and SVG",
-              "White, black, icon and circle versions",
-              "Custom background and padding",
-              "Free — no sign-up, no watermark",
+              "Any logo to transparent PNG",
+              "Automatic background removal, including inside letters",
+              "Halo-free clean edges",
+              "Recolor to white, black or any color",
+              "Circle and rounded badge",
+              "HD and 4K export as PNG, WebP or JPG",
+              "Free, private — runs in the browser",
             ],
           }),
         )}
@@ -123,7 +127,7 @@ export default async function LogoToolPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={jsonLdScript(
           howToSchema({
-            name: `How to download the ${tool.brand} logo PNG`,
+            name: "How to turn any logo into a transparent motion logo PNG",
             description: tool.metaDescription,
             path,
             steps,
@@ -157,33 +161,36 @@ export default async function LogoToolPage({
       </header>
 
       <QuickAnswer>
-        <strong>{tool.brand} logo PNG:</strong> choose a version below, keep the
-        background on “Transparent” and press Download to get the{" "}
-        {tool.brand} logo as a transparent HD PNG — up to 6000 px wide. White,
-        black, icon and circle versions, SVG, JPG and WebP are included. Free, no
-        sign-up, no watermark.
+        <strong>Make a motion logo PNG in 4 steps:</strong> upload any logo,
+        remove the background automatically, style it (white, black or a badge), then
+        download a transparent HD PNG up to 4K. Import it into {tool.brand} with
+        + → Image &amp; Video. Free, no sign-up, and your logo never leaves your
+        device.
       </QuickAnswer>
 
       <TrustBar />
 
       <div className="mt-6">
-        <LogoStudio
-          slug={tool.slug}
-          brand={tool.brand}
-          fileBase={fileBase}
-          variants={tool.variants}
-          colors={tool.colors}
-        />
+        <LogoConverter slug={tool.slug} sampleUrl={tool.sampleUrl} />
       </div>
 
       <AdZone zone="tool-top" format="leaderboard" className="my-6" />
 
+      <HowToSteps heading="How to make a transparent motion logo PNG" steps={steps} />
+
       <section className="py-4">
-        <h2 className="text-2xl font-bold">
-          {tool.brand} logo PNG – quick downloads
-        </h2>
+        <h2 className="text-2xl font-bold">About the Motion Logo PNG Maker</h2>
+        <div
+          className="article mt-4 text-slate-600 dark:text-slate-300"
+          dangerouslySetInnerHTML={{ __html: tool.longDescription }}
+        />
+      </section>
+
+      <section className="py-4" id="official-logo">
+        <h2 className="text-2xl font-bold">Official {tool.brand} logo PNG</h2>
         <p className="mt-2 text-sm text-slate-500">
-          Ready-made transparent PNG files. Tap a file type to download.
+          Need the {tool.brand} logo itself? These transparent PNG and SVG files
+          are rebuilt from the official vector logo. Tap a file type to download.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {tool.variants.map((v) => (
@@ -216,7 +223,7 @@ export default async function LogoToolPage({
                     {tool.brand} logo – {v.label}
                   </span>
                   <span className="text-xs text-slate-500">
-                    {v.pngWidth} × {v.pngHeight}px
+                    {v.hint} · {v.pngWidth} × {v.pngHeight}px
                   </span>
                 </span>
                 <span className="flex shrink-0 gap-1.5">
@@ -239,17 +246,26 @@ export default async function LogoToolPage({
             </figure>
           ))}
         </div>
-      </section>
 
-      <section className="py-4">
-        <h2 className="text-2xl font-bold">About the {tool.brand} logo</h2>
-        <div
-          className="article mt-4 text-slate-600 dark:text-slate-300"
-          dangerouslySetInnerHTML={{ __html: tool.longDescription }}
-        />
+        <h3 className="mt-6 font-semibold">{tool.brand} logo colors</h3>
+        <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {tool.colors.map((c) => (
+            <li
+              key={c.hex}
+              className="flex items-center gap-2 rounded-lg border border-slate-200 p-2 dark:border-slate-700"
+            >
+              <span
+                className="size-8 shrink-0 rounded-md border border-black/10"
+                style={{ background: c.hex }}
+              />
+              <span className="min-w-0">
+                <span className="block font-mono text-sm font-semibold">{c.hex}</span>
+                <span className="block truncate text-xs text-slate-500">{c.name}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </section>
-
-      <HowToSteps heading={`How to download the ${tool.brand} logo PNG`} steps={steps} />
 
       <FaqSection items={tool.faq} />
 
@@ -273,9 +289,9 @@ export default async function LogoToolPage({
 
       <p className="mt-6 rounded-lg bg-slate-50 p-4 text-xs leading-relaxed text-slate-500 dark:bg-slate-900">
         {tool.brand} and the {tool.brand} logo are trademarks of {tool.owner}.
-        ConvertFlow is not affiliated with or endorsed by {tool.owner}. The logo
-        is provided for identification and reference — for example in
-        tutorials, reviews and credits. Visit the official site at{" "}
+        ConvertFlow is not affiliated with or endorsed by {tool.owner}. The
+        official logo files are provided for identification and reference — for
+        example in tutorials, reviews and credits. Visit the official site at{" "}
         <a
           href={tool.officialSite}
           rel="nofollow noopener"

@@ -6,7 +6,9 @@ export const siteConfig = {
   // Set NEXT_PUBLIC_SITE_URL to the production domain before deploying.
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   locale: "en_US",
-  twitter: "@convertflow",
+  twitter: "@DhakalSanjivan",
+  // Social profiles: shown in the footer and listed as `sameAs` in schema.
+  social: [{ name: "X (Twitter)", href: "https://x.com/DhakalSanjivan" }],
   publisher: "ConvertFlow",
   adsenseClient: process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "",
   nav: [
