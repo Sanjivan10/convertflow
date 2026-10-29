@@ -1,0 +1,42 @@
+<svg viewBox="434.73 -19.15 191.76 191.76" xmlns="http://www.w3.org/2000/svg"><title>Alight Motion icon</title>
+<defs>
+<style>.cls-1{fill:#1e428a;}.cls-2{fill:url(#d);}.cls-3{fill:url(#c);}.cls-4{fill:url(#b);}.cls-5{fill:url(#a);}</style>
+<linearGradient id="d" x1="804.4" x2="614" y1="465.83" y2="465.83" gradientUnits="userSpaceOnUse">
+<stop stop-color="#66f9a8" offset="0"/>
+<stop stop-color="#2ab8dd" offset=".4846"/>
+<stop stop-color="#2ab8dd" stop-opacity=".883" offset=".5432"/>
+<stop stop-color="#2ab8dd" stop-opacity=".5824" offset=".6686"/>
+<stop stop-color="#2ab8dd" stop-opacity=".1057" offset=".8497"/>
+<stop stop-color="#2ab8dd" stop-opacity="0" offset=".8883"/>
+</linearGradient>
+<linearGradient id="c" x1="786.12" x2="681.63" y1="541.66" y2="433.63" gradientUnits="userSpaceOnUse">
+<stop stop-color="#66f9a8" offset="0"/>
+<stop stop-color="#2ab8dd" offset=".4846"/>
+<stop stop-color="#2ab8dd" stop-opacity=".883" offset=".5593"/>
+<stop stop-color="#2ab8dd" stop-opacity=".5824" offset=".719"/>
+<stop stop-color="#2ab8dd" stop-opacity=".1057" offset=".9497"/>
+<stop stop-color="#2ab8dd" stop-opacity="0" offset=".9988"/>
+</linearGradient>
+<linearGradient id="b" x1="731.82" x2="731.82" y1="569.03" y2="457.41" gradientUnits="userSpaceOnUse">
+<stop stop-color="#66f9a8" offset="0"/>
+<stop stop-color="#2ab8dd" offset=".4846"/>
+<stop stop-color="#2ab8dd" stop-opacity=".883" offset=".5502"/>
+<stop stop-color="#2ab8dd" stop-opacity=".5824" offset=".6905"/>
+<stop stop-color="#2ab8dd" stop-opacity=".1057" offset=".893"/>
+<stop stop-color="#2ab8dd" stop-opacity="0" offset=".9361"/>
+</linearGradient>
+<linearGradient id="a" x1="690.56" x2="741.47" y1="548" y2="498.41" gradientUnits="userSpaceOnUse">
+<stop stop-color="#66f9a8" offset="0"/>
+<stop stop-color="#2ab8dd" offset=".4777"/>
+<stop stop-color="#2ab8dd" stop-opacity=".883" offset=".5461"/>
+<stop stop-color="#2ab8dd" stop-opacity=".5824" offset=".6925"/>
+<stop stop-color="#2ab8dd" stop-opacity=".1057" offset=".9039"/>
+<stop stop-color="#2ab8dd" stop-opacity="0" offset=".9489"/>
+</linearGradient>
+</defs>
+
+<path class="cls-2" transform="translate(-178.82 -415.33)" d="m709.42 415.33a95.895 95.895 0 0 0-95.865 93.551 90.787 90.787 0 0 1 181.54 2.3435 5.1083 5.1083 0 0 0 10.217 0 95.895 95.895 0 0 0-95.895-95.895z"/>
+<path class="cls-3" transform="translate(-178.82 -415.33)" d="m762.03 459.67a75.461 75.461 0 0 0-105.42-1.2679 70.353 70.353 0 0 1 98.231 100.72c-0.0128 0.0125-0.0268 0.023-0.0395 0.0357a5.1084 5.1084 0 0 0 7.2243 7.2243l0.0023 0.0023a75.461 75.461 0 0 0 1e-4 -106.72z"/>
+<path class="cls-4" transform="translate(-178.82 -415.33)" d="m708.15 458.76a49.92 49.92 0 0 1-1.2848 99.823 5.1083 5.1083 0 1 0-0.0039 10.216 55.027 55.027 0 0 0 1.2887-110.04z"/>
+<path class="cls-5" transform="translate(-178.82 -415.33)" d="m729.51 488.57a29.486 29.486 0 1 1-41.7 41.7 5.1084 5.1084 0 0 0-7.2243 7.2244l0.0028 0.0026a34.594 34.594 0 0 0 48.921-48.927z"/>
+</svg>

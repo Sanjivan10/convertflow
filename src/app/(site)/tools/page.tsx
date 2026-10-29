@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getPublishedTools } from "@/lib/tools";
 import { PDF_TOOLS, PDF_TOOL_CATEGORIES } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
+import { LOGO_TOOLS } from "@/lib/logos/catalog";
 import {
   breadcrumbSchema,
   buildMetadata,
@@ -27,10 +28,11 @@ const LABELS: Record<string, string> = {
   image: "Image converters",
   pdf: "PDF tools",
   compress: "Compressors",
+  logo: "Logos",
   ...Object.fromEntries(PDF_TOOL_CATEGORIES.map((c) => [c.id, c.label])),
 };
 
-type Card = ToolCardData & { group: "image" | "pdf" | "compress" };
+type Card = ToolCardData & { group: "image" | "pdf" | "compress" | "logo" };
 
 export default async function ToolsPage({
   searchParams,
@@ -75,7 +77,18 @@ export default async function ToolsPage({
     group: "compress" as const,
   }));
 
-  const all: Card[] = [...imageCards, ...pdfCards, ...compressCards];
+  const logoCards: Card[] = LOGO_TOOLS.map((t) => ({
+    slug: t.slug,
+    name: t.name,
+    fromFormat: "LOGO",
+    toFormat: "PNG",
+    description: t.description,
+    category: "logo",
+    href: `/logo/${t.slug}`,
+    group: "logo" as const,
+  }));
+
+  const all: Card[] = [...imageCards, ...pdfCards, ...compressCards, ...logoCards];
 
   const filtered = !category
     ? all
@@ -85,6 +98,8 @@ export default async function ToolsPage({
         ? all.filter((c) => c.group === "pdf")
         : category === "compress"
           ? all.filter((c) => c.group === "compress")
+          : category === "logo"
+            ? all.filter((c) => c.group === "logo")
           : all.filter((c) => c.group === "pdf" && c.category === category);
 
   const crumbs: Crumb[] = [
@@ -133,6 +148,11 @@ export default async function ToolsPage({
           active={category === "compress"}
           href="/tools?category=compress"
           label="Compressors"
+        />
+        <CategoryChip
+          active={category === "logo"}
+          href="/tools?category=logo"
+          label="Logos"
         />
         {PDF_TOOL_CATEGORIES.map((c) => (
           <CategoryChip

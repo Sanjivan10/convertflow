@@ -4,6 +4,7 @@ import { ArrowRight, Lock, Zap, Gauge } from "lucide-react";
 import { getPublishedTools } from "@/lib/tools";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
+import { LOGO_TOOLS } from "@/lib/logos/catalog";
 import { ToolSearch } from "@/components/tool-search";
 import { AdZone } from "@/components/ad-zone";
 import { buildMetadata } from "@/lib/seo";
@@ -55,7 +56,16 @@ export default async function HomePage() {
     category: "compress",
     href: `/compress/${t.slug}`,
   }));
-  const allCards = [...imageCards, ...pdfCards, ...compressCards];
+  const logoCards: ToolCardData[] = LOGO_TOOLS.map((t) => ({
+    slug: t.slug,
+    name: t.name,
+    fromFormat: "LOGO",
+    toFormat: "PNG",
+    description: t.description,
+    category: "logo",
+    href: `/logo/${t.slug}`,
+  }));
+  const allCards = [...imageCards, ...pdfCards, ...compressCards, ...logoCards];
   const featuredPdf = PDF_TOOLS.filter((t) => t.featured);
 
   return (

@@ -4,6 +4,7 @@ import { getPublishedToolSlugs } from "@/lib/tools";
 import { getPublishedPosts } from "@/lib/blog";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
+import { LOGO_TOOLS } from "@/lib/logos/catalog";
 
 // Regenerate hourly; also revalidated on-demand from admin publish actions.
 export const revalidate = 3600;
@@ -60,11 +61,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: tool.featured ? 0.85 : 0.75,
   }));
 
+  const logoRoutes: MetadataRoute.Sitemap = LOGO_TOOLS.map((tool) => ({
+    url: absoluteUrl(`/logo/${tool.slug}`),
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
+
   return [
     ...staticRoutes,
     ...toolRoutes,
     ...pdfToolRoutes,
     ...compressRoutes,
+    ...logoRoutes,
     ...postRoutes,
   ];
 }
