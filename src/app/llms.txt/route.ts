@@ -2,6 +2,7 @@ import { absoluteUrl, siteConfig } from "@/lib/site";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 import { LOGO_TOOLS } from "@/lib/logos/catalog";
+import { MEDIA_TOOLS, mediaToolPath } from "@/lib/media-tools/catalog";
 import { TOOL_CATALOG } from "@/lib/tool-catalog";
 import { FORMATS } from "@/lib/format-info";
 import { getPublishedPosts } from "@/lib/blog";
@@ -99,6 +100,12 @@ ${COMPRESS_TOOLS.map((t) =>
   line(t.name, absoluteUrl(`/compress/${t.slug}`), t.description),
 ).join("\n")}
 - [PDF Compressor](${absoluteUrl("/tools/compress-pdf")}): Shrink PDF file size with structural repacking or image downscaling.
+
+## Video & image editing tools
+
+${MEDIA_TOOLS.map((t) =>
+  line(t.name, absoluteUrl(mediaToolPath(t)), t.description),
+).join("\n")}
 
 ## Logo downloads
 

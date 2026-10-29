@@ -5,6 +5,7 @@ import { getPublishedPosts } from "@/lib/blog";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 import { LOGO_TOOLS } from "@/lib/logos/catalog";
+import { MEDIA_TOOLS, mediaToolPath } from "@/lib/media-tools/catalog";
 
 // Regenerate hourly; also revalidated on-demand from admin publish actions.
 export const revalidate = 3600;
@@ -80,6 +81,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...pdfToolRoutes,
     ...compressRoutes,
     ...logoRoutes,
+    ...MEDIA_TOOLS.map((t) => ({
+      url: absoluteUrl(mediaToolPath(t)),
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.85,
+    })),
     ...postRoutes,
   ];
 }

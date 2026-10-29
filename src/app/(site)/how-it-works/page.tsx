@@ -15,6 +15,8 @@ const ROWS: { tools: string; where: string; tech: string }[] = [
   { tools: "Image converters (PNG, JPG, WebP, GIF, BMP, HEIC…)", where: "Your browser", tech: "Canvas API, WebAssembly decoders" },
   { tools: "Image compressors (JPEG, PNG, WebP)", where: "Your browser", tech: "Canvas API with adjustable quality" },
   { tools: "Motion Logo PNG Maker", where: "Your browser", tech: "Canvas pixel processing (background removal, recolor, resize)" },
+  { tools: "Background Remover", where: "Your browser", tech: "U²-Net AI model running locally (WebAssembly)" },
+  { tools: "Video Cutter (clips from long videos)", where: "Your browser", tech: "Reads only the needed part of the file; copies or re-encodes the clip" },
   { tools: "PDF merge, split, organize, compress, sign, redact, fill forms", where: "Your browser", tech: "pdf-lib and pdf.js" },
   { tools: "PDF OCR (make scanned PDFs searchable)", where: "Your browser", tech: "tesseract.js (WebAssembly OCR)" },
   { tools: "Word, PowerPoint, Excel ↔ PDF and PDF/A", where: "Secure server", tech: "Office-document engine; file deleted after conversion" },

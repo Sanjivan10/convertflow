@@ -54,8 +54,8 @@ export default function PrivacyPage() {
         <h2>1. Your files</h2>
         <h3>Tools that run entirely in your browser</h3>
         <p>
-          Image converters, image compressors, the Motion Logo PNG Maker, and
-          most PDF tools (merge, split, compress, organize, redact, fill forms,
+          Image converters, image compressors, the Background Remover, the
+          Video Cutter, the Motion Logo PNG Maker, and most PDF tools (merge, split, compress, organize, redact, fill forms,
           sign and OCR) use your browser’s own processing (Canvas API,
           WebAssembly, pdf.js, pdf-lib, tesseract.js). Your file is read,
           processed and handed back to you on your own device. It is never

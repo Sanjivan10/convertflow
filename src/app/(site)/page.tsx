@@ -5,6 +5,7 @@ import { getPublishedTools } from "@/lib/tools";
 import { PDF_TOOLS } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 import { LOGO_TOOLS } from "@/lib/logos/catalog";
+import { MEDIA_TOOLS, mediaToolPath } from "@/lib/media-tools/catalog";
 import { ToolSearch } from "@/components/tool-search";
 import { AdZone } from "@/components/ad-zone";
 import { buildMetadata } from "@/lib/seo";
@@ -65,7 +66,17 @@ export default async function HomePage() {
     category: "logo",
     href: `/logo/${t.slug}`,
   }));
-  const allCards = [...imageCards, ...pdfCards, ...compressCards, ...logoCards];
+  const mediaCards: ToolCardData[] = MEDIA_TOOLS.map((t) => ({
+    slug: t.slug,
+    name: t.name,
+    fromFormat: t.cardFrom,
+    toFormat: t.cardTo,
+    description: t.description,
+    category: t.section,
+    href: mediaToolPath(t),
+  }));
+  // New standalone tools first so they show in the first 12 cards.
+  const allCards = [...mediaCards, ...imageCards, ...pdfCards, ...compressCards, ...logoCards];
   const featuredPdf = PDF_TOOLS.filter((t) => t.featured);
 
   return (

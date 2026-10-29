@@ -3,6 +3,7 @@ import { getPublishedTools } from "@/lib/tools";
 import { PDF_TOOLS, PDF_TOOL_CATEGORIES } from "@/lib/pdf/catalog";
 import { COMPRESS_TOOLS } from "@/lib/compress/catalog";
 import { LOGO_TOOLS } from "@/lib/logos/catalog";
+import { MEDIA_TOOLS, mediaToolPath } from "@/lib/media-tools/catalog";
 import {
   breadcrumbSchema,
   buildMetadata,
@@ -29,10 +30,11 @@ const LABELS: Record<string, string> = {
   pdf: "PDF tools",
   compress: "Compressors",
   logo: "Logos",
+  video: "Video tools",
   ...Object.fromEntries(PDF_TOOL_CATEGORIES.map((c) => [c.id, c.label])),
 };
 
-type Card = ToolCardData & { group: "image" | "pdf" | "compress" | "logo" };
+type Card = ToolCardData & { group: "image" | "pdf" | "compress" | "logo" | "video" };
 
 export default async function ToolsPage({
   searchParams,
@@ -88,7 +90,18 @@ export default async function ToolsPage({
     group: "logo" as const,
   }));
 
-  const all: Card[] = [...imageCards, ...pdfCards, ...compressCards, ...logoCards];
+  const mediaCards: Card[] = MEDIA_TOOLS.map((t) => ({
+    slug: t.slug,
+    name: t.name,
+    fromFormat: t.cardFrom,
+    toFormat: t.cardTo,
+    description: t.description,
+    category: t.section,
+    href: mediaToolPath(t),
+    group: t.section,
+  }));
+
+  const all: Card[] = [...imageCards, ...pdfCards, ...compressCards, ...logoCards, ...mediaCards];
 
   const filtered = !category
     ? all
@@ -100,6 +113,8 @@ export default async function ToolsPage({
           ? all.filter((c) => c.group === "compress")
           : category === "logo"
             ? all.filter((c) => c.group === "logo")
+            : category === "video"
+              ? all.filter((c) => c.group === "video")
           : all.filter((c) => c.group === "pdf" && c.category === category);
 
   const crumbs: Crumb[] = [
@@ -153,6 +168,11 @@ export default async function ToolsPage({
           active={category === "logo"}
           href="/tools?category=logo"
           label="Logos"
+        />
+        <CategoryChip
+          active={category === "video"}
+          href="/tools?category=video"
+          label="Video"
         />
         {PDF_TOOL_CATEGORIES.map((c) => (
           <CategoryChip
