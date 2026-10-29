@@ -7,6 +7,8 @@ import {
   TrafficChart,
 } from "@/components/admin/dashboard-charts";
 import { Badge } from "@/components/ui/badge";
+import { getAiStats } from "@/lib/ai-analytics";
+import { AiSearchPanel } from "@/components/admin/ai-search-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +26,7 @@ function flag(code: string): string {
 }
 
 export default async function AdminDashboard() {
-  const stats = await getDashboardStats();
+  const [stats, ai] = await Promise.all([getDashboardStats(), getAiStats(30)]);
   const countryTotal = stats.topCountries.reduce((a, c) => a + c.count, 0) || 1;
 
   return (
@@ -217,6 +219,8 @@ export default async function AdminDashboard() {
           </ul>
         </div>
       </div>
+
+      <AiSearchPanel stats={ai} />
     </div>
   );
 }

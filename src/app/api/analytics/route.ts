@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     if (typeof raw.toFormat === "string") meta.toFormat = raw.toFormat.slice(0, 32);
     if (typeof raw.op === "string") meta.op = raw.op.slice(0, 48);
     if (Number.isFinite(raw.count)) meta.count = Number(raw.count);
+    if (typeof raw.utm === "string") meta.utm = raw.utm.slice(0, 64).toLowerCase();
 
     await prisma.analyticsEvent.create({
       data: {
