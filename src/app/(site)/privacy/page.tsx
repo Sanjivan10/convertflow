@@ -200,7 +200,11 @@ export default function PrivacyPage() {
           service providers that help us run the site — hosting and database
           (Vercel and our database provider), the document-conversion provider
           for server-based tools, Google (AdSense advertising and, if you choose
-          a language, Google Translate) — and when required by law. Under some US
+          a language, Google Translate) — and when required by law. Some tools
+          download open-source AI models (for captions, translation and background
+          removal) from public CDNs such as jsDelivr and Hugging Face; those
+          services see the download request, but never your files, which are
+          processed on your device. Under some US
           state laws, allowing advertising cookies for personalized ads can count
           as “sharing”; you can opt out using the controls in section 4.
         </p>

@@ -38,12 +38,12 @@ export const MEDIA_TOOLS: MediaToolDef[] = [
     section: "video",
     widget: "video-cutter",
     name: "Video Cutter",
-    h1: "Video Cutter: Cut Any Clip from a Long Video",
-    metaTitle: "Video Cutter – Cut Any Clip from a Long Video Online (Free)",
+    h1: "Video Cutter: Cut, Resize & Add Captions to Any Video",
+    metaTitle: "Video Cutter – Cut, Resize & Add Captions (Free)",
     metaDescription:
-      "Free, private, no upload: cut any part of a long video in seconds – 2 sec or 2 hours, with no quality loss. Works with MP4, MOV, WebM & MKV.",
+      "Free, no upload: cut any part of a long video, resize it for Reels & Shorts (9:16) and auto-add captions in English, Nepali, Hindi & more.",
     description:
-      "Cut out any part of a video — from a 2-second moment to a 1-hour section of a 2-hour recording. Set the start and end time, preview, and download. Your video never leaves your device.",
+      "Cut any part of a video — from a 2-second moment to an hour of a 2-hour recording — resize it for YouTube, Reels, Shorts or TikTok, and add auto-generated captions in English, Nepali, Hindi and 30+ languages. Your video never leaves your device.",
     keywords: [
       "video cutter",
       "cut video online",
@@ -56,11 +56,20 @@ export const MEDIA_TOOLS: MediaToolDef[] = [
       "trim video without losing quality",
       "cut video without uploading",
       "extract audio from video clip",
+      "resize video for reels",
+      "9:16 video converter",
+      "video resizer online",
+      "auto caption generator",
+      "add subtitles to video",
+      "nepali caption generator",
+      "hindi subtitle generator",
+      "srt subtitle generator",
+      "translate subtitles",
     ],
     cardFrom: "VIDEO",
     cardTo: "CLIP",
     quickAnswer:
-      "Add your video, type the start and end time (for example 1:01:00 to 1:03:00, or 0:02 to 0:40), preview the clip and press Cut & Download. Fast mode cuts instantly with no quality loss; Exact mode cuts on the exact frame. Free, no sign-up, and the video is never uploaded.",
+      "Add your video, type the start and end time (for example 1:01:00 to 1:03:00), pick a size such as 9:16 for Reels and Shorts, optionally generate captions in English, Nepali, Hindi or another language, and press Cut & Download. Free, no sign-up, and the video is never uploaded.",
     steps: [
       {
         name: "Add your video",
@@ -71,8 +80,12 @@ export const MEDIA_TOOLS: MediaToolDef[] = [
         text: "Type the times (h:mm:ss, mm:ss or seconds), drag the sliders, or play the video and tap “Use current time”. Preview the clip to check it.",
       },
       {
-        name: "Choose Fast or Exact",
-        text: "Fast copies the video without re-encoding — instant and lossless, starting at the nearest keyframe. Exact re-encodes so the clip starts on the exact frame. You can also save the audio only.",
+        name: "Pick a size and shape",
+        text: "Keep the original, or choose 16:9 (YouTube), 9:16 (Reels, Shorts, TikTok), 1:1 or 4:5, and a resolution from 1080p to 360p. Crop to fill, or fit the whole video with blurred or black bars.",
+      },
+      {
+        name: "Add captions (optional)",
+        text: "Choose the spoken language and press Generate captions. Edit any line, translate the captions into another language, then burn them into the video or download an SRT/VTT file.",
       },
       {
         name: "Cut and download",
@@ -85,6 +98,10 @@ export const MEDIA_TOOLS: MediaToolDef[] = [
       "Fast lossless cut or frame-exact cut",
       "Preview the clip before downloading",
       "Audio-only (M4A) export",
+      "Resize to 16:9, 9:16, 1:1 or 4:5 and 1080p–360p",
+      "Auto captions in 30+ languages incl. Nepali and Hindi",
+      "Translate captions into another language",
+      "Burn captions into the video or export SRT/VTT",
       "MP4, MOV, WebM and MKV",
       "Private — runs in the browser, no upload",
     ],
@@ -101,6 +118,11 @@ export const MEDIA_TOOLS: MediaToolDef[] = [
 </ul>
 <h3>Fast vs Exact: which should I use?</h3>
 <p>Videos are stored as “keyframes” (full pictures every few seconds) plus small changes in between. <strong>Fast</strong> mode copies the original data, so the clip has to begin on a keyframe — it may start up to a few seconds before your chosen time, but it’s instant and keeps 100% of the quality. <strong>Exact</strong> mode re-encodes the clip so it starts and ends exactly where you set; it takes longer and uses your device’s video encoder.</p>
+<h3>Resize for YouTube, Reels, Shorts and TikTok</h3>
+<p>Choose a shape — <strong>16:9</strong> for YouTube, <strong>9:16</strong> for Instagram Reels, YouTube Shorts and TikTok, <strong>1:1</strong> for square posts or <strong>4:5</strong> for Instagram portrait — and a resolution from 1080p down to 360p for smaller files. “Crop to fill” zooms in to fill the frame; “Fit + blur bars” keeps the whole picture with a soft blurred background, the popular look for turning a landscape video into a vertical one.</p>
+<h3>Auto captions in English, Nepali, Hindi and 30+ languages</h3>
+<p>The <strong>caption generator</strong> listens to the clip and writes timed captions using the Whisper speech model, running privately in your browser. It supports English, Nepali, Hindi, Bengali, Urdu, Tamil, Spanish, Arabic, Portuguese, French, Indonesian, Chinese, Japanese and many more. Every line is editable, so you can fix names or spelling before using them. Then <strong>translate the captions</strong> into another language, <strong>burn them into the video</strong> so they show on every app, or download an <strong>SRT</strong> or <strong>VTT</strong> subtitle file for YouTube and video editors.</p>
+<p>Captions are created on your device, so the first time you use them your browser downloads the speech model once (73 MB for Standard, 237 MB for Accurate). Accurate is used for Nepali, Hindi and other South Asian languages because it writes them in the correct script. Translation uses your browser’s built-in translator where available, otherwise an in-browser AI model — for some languages, such as Nepali, the translation can be basic, so please review it.</p>
 <h3>Which videos can I cut?</h3>
 <p>Any video file on your phone or computer that you have the right to use — camera and phone recordings, screen recordings, exported projects, or downloads you are allowed to edit. ConvertFlow does not download videos from YouTube or other websites.</p>
 `.trim(),
@@ -139,6 +161,26 @@ export const MEDIA_TOOLS: MediaToolDef[] = [
         question: "Is my video uploaded?",
         answer:
           "No. The video is opened and cut entirely in your browser. It never leaves your device, so even private recordings stay private.",
+      },
+      {
+        question: "How do I resize a video for Instagram Reels, YouTube Shorts or TikTok?",
+        answer:
+          "Choose 9:16 under Size & shape. Pick “Crop to fill” to fill the vertical frame, or “Fit + blur bars” to keep the whole landscape video with a blurred background, then press Cut & Download.",
+      },
+      {
+        question: "Can it generate captions in Nepali and Hindi?",
+        answer:
+          "Yes. Choose Nepali or Hindi as the spoken language and press Generate captions. The Accurate speech model is used for these languages. Results are usually good but not perfect, so review and edit the lines before using them.",
+      },
+      {
+        question: "Can I translate captions into another language?",
+        answer:
+          "Yes. After generating captions, choose a language under “Translate captions to” and press Translate. You can switch back to the original captions at any time.",
+      },
+      {
+        question: "Should I burn in captions or download an SRT file?",
+        answer:
+          "Burn them in for Instagram, TikTok, WhatsApp and other apps — the text becomes part of the video. Download SRT or VTT for YouTube or video editors, where captions can be turned on and off.",
       },
       {
         question: "Can I save only the audio from a clip?",

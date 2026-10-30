@@ -1,14 +1,41 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Download, Film, Loader2, Pause, Play, RotateCcw, Scissors, X } from "lucide-react";
 import { Dropzone } from "@/components/dropzone";
 import { logConversion, trackClick } from "@/lib/track";
 import { cn, formatBytes } from "@/lib/utils";
+import { CaptionPanel } from "@/components/video/caption-panel";
+import { captionAt, drawCaption, toVtt, type Caption } from "@/lib/video/captions";
 
 type Mode = "fast" | "exact";
 type Output = "video" | "audio";
 type Mb = typeof import("mediabunny");
+type Shape = "original" | "16:9" | "9:16" | "1:1" | "4:5";
+type Res = "original" | 1080 | 720 | 480 | 360;
+type Fit = "crop" | "bars" | "blur";
+
+const SHAPES: { id: Shape; label: string; hint: string }[] = [
+  { id: "original", label: "Original", hint: "Keep the shape" },
+  { id: "16:9", label: "16:9", hint: "YouTube" },
+  { id: "9:16", label: "9:16", hint: "Reels, Shorts, TikTok" },
+  { id: "1:1", label: "1:1", hint: "Square post" },
+  { id: "4:5", label: "4:5", hint: "Instagram portrait" },
+];
+const RESOLUTIONS: Res[] = ["original", 1080, 720, 480, 360];
+
+const even = (n: number) => Math.max(2, Math.round(n / 2) * 2);
+
+/** Output frame size for a shape + resolution (resolution = the short side). */
+function outputSize(srcW: number, srcH: number, shape: Shape, res: Res) {
+  const ratio = shape === "original" ? srcW / srcH : (() => {
+    const [a, b] = shape.split(":").map(Number);
+    return a / b;
+  })();
+  const srcShort = Math.min(srcW, srcH);
+  const short = res === "original" ? srcShort : res;
+  return ratio >= 1 ? { w: even(short * ratio), h: even(short) } : { w: even(short), h: even(short / ratio) };
+}
 
 const ACCEPT = "video/*,.mp4,.mov,.m4v,.webm,.mkv";
 
@@ -36,6 +63,9 @@ type Loaded = {
   duration: number;
   mime: string;
   hasVideo: boolean;
+  width: number;
+  height: number;
+  mb: Mb;
 };
 
 function outputFor(mb: Mb, mime: string, output: Output) {
@@ -126,6 +156,11 @@ export function VideoCutter({ slug }: { slug: string }) {
   const [progress, setProgress] = useState<number | null>(null);
   const [playable, setPlayable] = useState(true);
   const [previewing, setPreviewing] = useState(false);
+  const [shape, setShape] = useState<Shape>("original");
+  const [res, setRes] = useState<Res>("original");
+  const [fit, setFit] = useState<Fit>("crop");
+  const [captions, setCaptions] = useState<Caption[]>([]);
+  const [burn, setBurn] = useState(true);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const mbRef = useRef<Mb | null>(null);
@@ -149,7 +184,18 @@ export function VideoCutter({ slug }: { slug: string }) {
       ]);
       if (!Number.isFinite(duration) || duration <= 0) throw new Error("no duration");
       setPlayable(true);
-      setLoaded({ file, url: URL.createObjectURL(file), input, duration, mime: format.mimeType, hasVideo: Boolean(videoTrack) });
+      setLoaded({
+        file,
+        url: URL.createObjectURL(file),
+        input,
+        duration,
+        mime: format.mimeType,
+        hasVideo: Boolean(videoTrack),
+        width: videoTrack ? videoTrack.displayWidth : 0,
+        height: videoTrack ? videoTrack.displayHeight : 0,
+        mb,
+      });
+      setCaptions([]);
       setStart(0);
       setEnd(Math.min(duration, 30));
       setOutput(videoTrack ? "video" : "audio");
@@ -163,6 +209,21 @@ export function VideoCutter({ slug }: { slug: string }) {
   const clipLen = Math.max(0, end - start);
   const estSize = loaded ? (loaded.file.size * clipLen) / loaded.duration : 0;
   const valid = loaded && clipLen >= 0.1;
+  const resized = shape !== "original" || res !== "original";
+  const burnIn = burn && captions.length > 0;
+  // Resizing or burning captions re-draws every frame, so the video is re-encoded.
+  const reencode = output === "video" && Boolean(loaded?.hasVideo) && (resized || burnIn);
+  const size = loaded?.hasVideo ? outputSize(loaded.width, loaded.height, shape, res) : null;
+  const baseName = loaded ? loaded.file.name.replace(/\.[^.]+$/, "") || "video" : "video";
+
+  // Show the captions on the preview player (shifted to the clip's position).
+  const trackUrl = useMemo(
+    () => (captions.length ? URL.createObjectURL(new Blob([toVtt(captions, start)], { type: "text/vtt" })) : null),
+    [captions, start],
+  );
+  useEffect(() => () => {
+    if (trackUrl) URL.revokeObjectURL(trackUrl);
+  }, [trackUrl]);
 
   function setStartSafe(t: number) {
     setStart(t);
@@ -204,12 +265,47 @@ export function VideoCutter({ slug }: { slug: string }) {
       const out = outputFor(mb, loaded.mime, output);
       const target = new mb.BufferTarget();
       const result = new mb.Output({ format: out.format, target });
+      let video: Record<string, unknown> | undefined = output === "audio" ? { discard: true } : undefined;
+      if (reencode && size) {
+        const W = size.w;
+        const H = size.h;
+        const canvas = document.createElement("canvas");
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext("2d")!;
+        const caps = burnIn ? captions : [];
+        video = {
+          processedWidth: W,
+          processedHeight: H,
+          bitrate: mb.QUALITY_HIGH,
+          // Timestamps here are relative to the clip start, like the captions.
+          process: (sample: InstanceType<Mb["VideoSample"]>) => {
+            ctx.filter = "none";
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, W, H);
+            if (fit === "crop") {
+              sample.drawWithFit(ctx, { fit: "cover" });
+            } else {
+              if (fit === "blur") {
+                ctx.filter = `blur(${Math.round(Math.max(W, H) / 40)}px)`;
+                sample.drawWithFit(ctx, { fit: "cover" });
+                ctx.filter = "none";
+                ctx.fillStyle = "rgba(0,0,0,0.25)";
+                ctx.fillRect(0, 0, W, H);
+              }
+              sample.drawWithFit(ctx, { fit: "contain" });
+            }
+            if (caps.length) drawCaption(ctx, captionAt(caps, sample.timestamp), W, H);
+            return canvas;
+          },
+        };
+      }
       const conversion = await mb.Conversion.init({
         input: loaded.input,
         output: result,
         trim: { start, end },
-        copy: mode === "fast" ? {} : false,
-        video: output === "audio" ? { discard: true } : undefined,
+        copy: mode === "fast" && !reencode ? {} : false,
+        video,
         showWarnings: false,
       });
       if (!conversion.isValid) throw new Error("unsupported");
@@ -219,7 +315,7 @@ export function VideoCutter({ slug }: { slug: string }) {
       const buffer = target.buffer;
       if (!buffer) throw new Error("empty");
 
-      const base = loaded.file.name.replace(/\.[^.]+$/, "") || "video";
+      const base = baseName;
       const stamp = `${formatTime(start, 0)}-${formatTime(end, 0)}`.replace(/:/g, "-");
       const blob = new Blob([buffer], { type: out.type });
       const url = URL.createObjectURL(blob);
@@ -240,7 +336,7 @@ export function VideoCutter({ slug }: { slug: string }) {
         durationMs: Math.round(performance.now() - t0),
         success: true,
       });
-      trackClick(`video-cut:${slug}`, { mode, output, seconds: Math.round(clipLen) });
+      trackClick(`video-cut:${slug}`, { mode, output, seconds: Math.round(clipLen), shape, res: String(res), captions: burnIn });
     } catch (e) {
       if (e instanceof Error && e.name === "ConversionCanceledError") {
         setError("Cut cancelled.");
@@ -317,7 +413,9 @@ export function VideoCutter({ slug }: { slug: string }) {
                   onTimeUpdate={onTimeUpdate}
                   onError={() => setPlayable(false)}
                   className="max-h-[360px] w-full"
-                />
+                >
+                  {trackUrl && <track key={trackUrl} kind="captions" src={trackUrl} srcLang="en" label="Captions" default />}
+                </video>
               ) : (
                 <p className="p-6 text-center text-sm text-slate-300">
                   Your browser can’t preview this video format, but you can still cut it — type the times below.
@@ -361,19 +459,84 @@ export function VideoCutter({ slug }: { slug: string }) {
             </p>
           )}
 
+          {loaded.hasVideo && output === "video" && size && (
+            <div className="mt-5 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+              <p className="font-semibold">Size &amp; shape</p>
+              <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+                {SHAPES.map((x) => (
+                  <button key={x.id} type="button" className={chip(shape === x.id)} onClick={() => setShape(x.id)}>
+                    <strong>{x.label}</strong>
+                    <span className="block text-[11px] leading-tight text-slate-500">{x.hint}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <fieldset>
+                  <legend className="text-xs font-medium uppercase tracking-wide text-slate-500">Resolution</legend>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {RESOLUTIONS.map((r) => (
+                      <button key={String(r)} type="button" className={cn(chip(res === r), "py-1.5")} onClick={() => setRes(r)}>
+                        {r === "original" ? "Original" : `${r}p`}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+                {shape !== "original" && (
+                  <fieldset>
+                    <legend className="text-xs font-medium uppercase tracking-wide text-slate-500">Fit</legend>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {([
+                        ["crop", "Crop to fill"],
+                        ["blur", "Fit + blur bars"],
+                        ["bars", "Fit + black bars"],
+                      ] as [Fit, string][]).map(([id, l]) => (
+                        <button key={id} type="button" className={cn(chip(fit === id), "py-1.5")} onClick={() => setFit(id)}>
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
+              </div>
+              <p className="mt-3 text-sm text-slate-500">
+                Output: <strong className="text-slate-700 dark:text-slate-200">{size.w} × {size.h}px</strong>
+                {resized ? " · re-encoded" : " · same as your video"}
+              </p>
+            </div>
+          )}
+
+          {(
+            <CaptionPanel
+              slug={slug}
+              mb={loaded.mb}
+              input={loaded.input}
+              start={start}
+              end={end}
+              baseName={baseName}
+              captions={captions}
+              onCaptions={setCaptions}
+              burn={burn}
+              onBurn={setBurn}
+              disabled={busy}
+            />
+          )}
+
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <fieldset>
               <legend className="text-xs font-medium uppercase tracking-wide text-slate-500">Cut mode</legend>
               <div className="mt-2 grid gap-2">
-                <button type="button" className={chip(mode === "fast")} onClick={() => setMode("fast")}>
+                <button type="button" disabled={reencode} className={cn(chip(mode === "fast" && !reencode), "disabled:opacity-50")} onClick={() => setMode("fast")}>
                   <strong>Fast</strong> — instant, no quality loss
                   <span className="block text-xs text-slate-500">Starts at the nearest keyframe (can be a few seconds early)</span>
                 </button>
-                <button type="button" className={chip(mode === "exact")} onClick={() => setMode("exact")}>
+                <button type="button" className={chip(mode === "exact" || reencode)} onClick={() => setMode("exact")}>
                   <strong>Exact</strong> — frame-perfect start &amp; end
                   <span className="block text-xs text-slate-500">Re-encodes the clip, takes longer</span>
                 </button>
               </div>
+              {reencode && (
+                <p className="mt-1.5 text-xs text-slate-500">Exact is used automatically when resizing or burning in captions.</p>
+              )}
             </fieldset>
             <fieldset>
               <legend className="text-xs font-medium uppercase tracking-wide text-slate-500">Save as</legend>
